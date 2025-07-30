@@ -21,16 +21,28 @@ export async function POST(request) {
     try {
       await limiter.check(ip);
     } catch {
+      // Log rate limit violations for security monitoring
+      console.warn(`[SECURITY] Rate limit exceeded for registration from IP: ${ip} at ${new Date().toISOString()}`);
       return NextResponse.json(
         { error: "Too many requests, please try again later" },
         { status: 429 }
       );
     }
 
-    // 2. Parse request body
+    // 2. Parse request body with size limit
     let body;
     try {
-      body = await request.json();
+      const text = await request.text();
+      
+      // Prevent DoS attacks with large payloads
+      if (text.length > 10000) { // 10KB limit
+        return NextResponse.json(
+          { error: "Request payload too large" },
+          { status: 413 }
+        );
+      }
+      
+      body = JSON.parse(text);
     } catch (parseError) {
       return NextResponse.json(
         { error: "Invalid JSON payload" },
@@ -82,6 +94,9 @@ export async function POST(request) {
     });
 
     await newUser.save();
+
+    // Log successful registration for security monitoring
+    console.log(`[SECURITY] New user registered: ${newUser.email} from IP: ${ip} at ${new Date().toISOString()}`);
 
     // 7. Return success response (no automatic login, user needs to sign in)
     return NextResponse.json(

@@ -76,7 +76,7 @@ export default function DashboardPage() {
               🎉 Welcome to your Dashboard!
             </h2>
             <p className="text-lg text-gray-700">
-              Authentication successful! You're now logged in to Writza.
+              Authentication successful! You&apos;re now logged in to Writza.
             </p>
           </div>
           
