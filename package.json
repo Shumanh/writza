@@ -25,13 +25,12 @@
 
   },
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).",
-  "main": "auth.js",
   "directories": {
     "lib": "lib"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://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@github.com/ashyuman/writza.git"
+    "url": "git+https://github.com/ashyuman/writza.git"
   },
   "keywords": [],
   "author": "",
