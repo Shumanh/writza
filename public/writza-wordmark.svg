@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="Writza wordmark">
+  <title>Writza Wordmark</title>
+  <!-- Tailwind sky-300: #7dd3fc -->
+  <rect width="100%" height="100%" fill="none"/>
+  <g>
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+          font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif"
+          font-weight="700" font-size="96" fill="#7dd3fc" letter-spacing="1">
+      Writza
+    </text>
+  </g>
+</svg>
+
+
+
