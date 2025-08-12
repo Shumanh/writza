@@ -5,7 +5,8 @@ export default function Hero() {
       
 
       <h1 className="font-bold text-5xl md:text-8xl leading-tight  ">
-        Insights from minds that Matter   
+        Insights 
+        from minds that Matter   
         
       </h1>
 
