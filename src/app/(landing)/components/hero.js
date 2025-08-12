@@ -4,9 +4,9 @@ export default function Hero() {
     <section className=" flex h-[80vh] items-center justify-between gap-8 px-6 pt-10">
       
 
-      <h1 className="font-bold text-5xl md:text-8xl leading-tight">
-        Insights from minds that
-        Matters
+      <h1 className="font-bold text-5xl md:text-8xl leading-tight  ">
+        Insights from minds that Matter   
+        
       </h1>
 
       <img
@@ -16,14 +16,6 @@ export default function Hero() {
       />
 
     </section>
-
-
-
-
-
-
-
-
 
 
   );
