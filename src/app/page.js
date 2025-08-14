@@ -1,15 +1,13 @@
-import Hero from "./(landing)/components/hero";
-import Navbar from "./(landing)/components/navbar";
+import Hero from "../components/(landing)/hero";
 
 
 export default function Home() {
   return (
     <>
-   
-      <Navbar />
       <div className="max-w-7xl flex m-auto">
         <Hero />
       </div>
+      
     </>
   );
 }

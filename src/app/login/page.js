@@ -1,10 +1,37 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from 'next/navigation'
 
-export default function login(){
+
+
+export default function Login(){
+
+const router = useRouter();
+
+async function handleSubmit(e){
+    e.preventDefault()
+const formData = new FormData(e.currentTarget);
+const email = formData.get('email')
+const password = formData.get('password')
+
+
+const response = await fetch('api/auth/login' , {
+    method : 'POST' , 
+    headers: { 'Content-type':'application/json'},
+    body:JSON.stringify({email,password}) ,
+})
+
+if(response.ok){
+    router.push('/')
+}
+else{
+    alert('Login failed')
+}
+
+}
+
     return (
-
         <div className = " flex  h-screen">
 <div className = " border- w-[32%] h-[52%] m-auto bg-neutral-900 rounded-lg shadow dark:border  dark:border-gray-700" >
     
@@ -15,7 +42,7 @@ export default function login(){
   </h1>
   <p> Enter your email below to login to your account</p>
       
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="mt-4">
             <label> Enter your email</label>
 
@@ -25,7 +52,7 @@ export default function login(){
        <label>  password</label>
     <p>Forgot your Password ?</p>
     </div>
-  <input type="" id="password" name="password"  className="flex p-1 border border-white  mt-2 rounded-lg shadow dark:border w-full dark:border-gray-700 pl-2" />
+  <input type="password" id="password" name="password"  className="flex p-1 border border-white  mt-2 rounded-lg shadow dark:border w-full dark:border-gray-700 pl-2" />
 <div className=" p-1 border border-white  mt-6 rounded-lg shadow dark:border dark:border-gray-700 pl-2 text-center bg-white text-black">
      <button type="submit">Login</button>
 </div>
@@ -37,7 +64,7 @@ export default function login(){
 <div className="mt-4 text-center">
     <p>
         Don't have an account? 
-            <Link  href="/register"className="ml-1 border-b-1" >Sign up</Link>
+            <Link  href="/signup" className="ml-1 border-b-1">Sign up</Link>
 
         </p> 
     </div>
