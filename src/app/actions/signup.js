@@ -1,12 +1,12 @@
 "use server"
 
-import { SignupFormSchema } from '@/app/lib/definitions'
+import { UserFormSchema } from '@/app/lib/definitions'
 import User from '@/db/models/User'
 import { dbConnect } from '@/lib/db/mongodb'
 
 
-export async function signup(_prevState, formData) {
-  const validatedFields = SignupFormSchema.safeParse({
+export async function Signup(_prevState, formData) {
+  const validatedFields = UserFormSchema.safeParse({
     username: formData.get('username'),
     email: formData.get('email'),
     password: formData.get('password'),
@@ -15,13 +15,14 @@ export async function signup(_prevState, formData) {
 
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: validatedFields.error.fieldErrors,
     }
   }
 
   const { username, email, password } = validatedFields.data
-  const normalizedUsername = String(username).trim().toLowerCase()
-  const normalizedEmail = String(email).trim().toLowerCase()
+  const Username = String(username)
+  const Email = String(email)
+  const Password = String(password)
 
   try {
     await dbConnect()
@@ -30,18 +31,18 @@ export async function signup(_prevState, formData) {
     return { errors: { global: 'Database connection failed. Check MONGODB_URI and network.' } }
   }
 
-  const existingByEmail = await User.findOne({ email: normalizedEmail })
+  const existingByEmail = await User.findOne({ email: Email })
   if (existingByEmail) {
     return { errors: { email: ['Email is already registered'] } }
   }
 
-  const existingByUsername = await User.findOne({ username: normalizedUsername })
+  const existingByUsername = await User.findOne({ username: Username })
   if (existingByUsername) {
     return { errors: { username: ['Username is taken'] } }
   }
 
   try {
-    const newUser = new User({ username: normalizedUsername, email: normalizedEmail, password })
+    const newUser = new User({ username: Username, email: Email, password })
     await newUser.save()
     return { success: true }
   } catch (error) {

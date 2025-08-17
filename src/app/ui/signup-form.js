@@ -1,16 +1,17 @@
 "use client"
 import Link from "next/link"
 import { useActionState, useEffect } from "react"
-import { signup } from "../actions/auth"
+import { Signup } from "../actions/signup"
 
 export  function SignupForm(){
     const initialState = { errors: {}, success: false }
-    const [state, formAction] = useActionState(signup, initialState)
+    const [state, formAction] = useActionState( Signup, initialState)
     useEffect(() => {
       if (state?.success) {
         window.location.href = '/login'
       }
     }, [state?.success])
+
     return (
     
 <div className = " w-full h-screen flex   ">   

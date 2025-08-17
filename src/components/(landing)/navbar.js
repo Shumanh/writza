@@ -4,11 +4,14 @@ export default function Navbar() {
   return (
     <nav className=" text-white flex items-center justify-between relative top-5  ">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <a href="/">
+<img
         src="/writza-wordmark.svg"
         alt="logo"
         className="w-50 h-15  relative left-20 items-center "
       />
+</a>
+      
       <div className="flex  text-lg relative right-35 gap-10 items-center">
         <div className="flex  gap-10  ">
           <button className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300 ">
