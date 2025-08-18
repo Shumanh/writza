@@ -18,7 +18,7 @@ export default function Hero() {
 
         <div className="mt-8 flex items-center gap-4">
           <a
-            href="/signup"
+            href="auth/signup"
             className="px-5 py-3 rounded-xl bg-gradient-to-r from-sky-300 to-cyan-400 text-black font-medium hover:opacity-90 transition"
           >
             Start Writing
