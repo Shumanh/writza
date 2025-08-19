@@ -5,7 +5,6 @@ import {
   Libre_Baskerville,
 } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/(landing)/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +41,6 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${libreBaskerville.variable} antialiased font-sans text-white`}
       >
-        <Navbar />
         {children}
       </body>
     </html>

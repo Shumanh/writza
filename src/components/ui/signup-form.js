@@ -34,7 +34,7 @@ export function SignupForm() {
           window.location.href = '/auth/login';
         }, 1000);
       } else {
-        setState({ errors: result.message || {}, success: false });
+        setState({ errors: result.errors || result.message || {}, success: false });
       }
     } catch (error) {
       setState({ 
@@ -67,7 +67,9 @@ return(
     name="username"
     placeholder="Username" />
     {state?.errors?.username && (
-      <p className="text-red-400 text-sm mt-1">{state.errors.username._errors[0]}</p>
+      <p className="text-red-400 text-sm mt-1">
+        {Array.isArray(state.errors.username) ? state.errors.username[0] : state.errors.username._errors?.[0]}
+      </p>
     )}
    
 <input
@@ -76,7 +78,9 @@ className = "border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
 name = "email"
 placeholder = "Email" />
     {state?.errors?.email && (
-      <p className="text-red-400 text-sm mt-1">{state.errors.email._errors[0]}</p>
+      <p className="text-red-400 text-sm mt-1">
+        {Array.isArray(state.errors.email) ? state.errors.email[0] : state.errors.email._errors?.[0]}
+      </p>
     )}
 
 <input
@@ -85,7 +89,9 @@ className="border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
 name = "password"
 placeholder="Password" />
     {state?.errors?.password && (
-      <p className="text-red-400 text-sm mt-1">{state.errors.password._errors[0]}</p>
+      <p className="text-red-400 text-sm mt-1">
+        {Array.isArray(state.errors.password) ? state.errors.password[0] : state.errors.password._errors?.[0]}
+      </p>
     )}
 
 <input
@@ -94,7 +100,9 @@ placeholder="Password" />
  name = "confirmPassword"
  placeholder="Confirm Password" />
     {state?.errors?.confirmPassword && (
-      <p className="text-red-400 text-sm mt-1">{state.errors.confirmPassword._errors[0]}</p>
+      <p className="text-red-400 text-sm mt-1">
+        {Array.isArray(state.errors.confirmPassword) ? state.errors.confirmPassword[0] : state.errors.confirmPassword._errors?.[0]}
+      </p>
     )}
  
   

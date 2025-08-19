@@ -1,10 +1,11 @@
 
-
 import { dbConnect } from "@/lib/db/mongodb";
 import { LoginFormSchema } from "@/lib/validation/user";
 import bcrypt from 'bcrypt'
-import User from "@/db/models/User";
+import User from "@/models/User";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { generateToken } from "@/lib/auth/jwt";
 
 
 export async function POST(req) {
@@ -22,24 +23,44 @@ if(!loginValidation.success){
 await dbConnect();
 
   const user = await User.findOne({email});
+
   if(!user){
     return NextResponse.json({message:"Login failed, register first."}, {status:400})
   }
 
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if(!passwordMatch){
-    return NextResponse.json({message:"Invalid credentials."}, {status:400})
-  }
+ const passwordMatch = await bcrypt.compare(password, user.password);
+ if(!passwordMatch){
+  return NextResponse.json({message:"Invalid credentials."}, {status:400})
+ }
 
-  return NextResponse.json({
-    success: true,
-    message: "Login successful"
-  }, {status: 200})
+  const token = generateToken(user);
+  
+(await cookies()).set({
+  name:'token',
+  value: token,
+  httpOnly:true,
+  path:'/',
+  maxAge:604800,
+  sameSite:'strict',
+  secure: process.env.NODE_ENV === 'production'
+});
+
+
+return NextResponse.json({
+      success: true,
+      message: "Login successful",
+      token  
+}, {
+      status: 200,
+    });
 
 } catch (error) {
-  return NextResponse.json({message:"Error checking password."}, {status:500})
-}         
-
+  console.error('Login error:', error);
+  return NextResponse.json(
+    { errors: { global: "An error occurred during login" } }, 
+    { status: 500 }
+  );
+}
 }
 
 

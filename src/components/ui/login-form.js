@@ -34,6 +34,7 @@ export function LoginForm() {
       setState({success:true,errors:{}})
       setTimeout(() => {
         window.location.href = '/'
+        console.log("login successful")
       }, 1000)
         } else {
       if(result.errors) {

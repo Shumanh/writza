@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { UserformSchema } from '@/lib/validation/user';
-import User from '@/db/models/User';
+import User from '@/models/User';
 import { dbConnect } from '@/lib/db/mongodb';
 
 export async function POST(req) {

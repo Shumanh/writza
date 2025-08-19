@@ -1,6 +1,6 @@
 import { dbConnect } from "@/lib/db/mongodb";
 import { NextResponse } from "next/server";
-import Blog from "@/db/models/Blog";
+import Blog from "@/models/Blog";
 import { BlogValidation } from "@/lib/validation/blog";
 import {z} from "zod";
 
