@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import { generateToken } from "@/lib/auth/jwt";
 
 
+
 export async function POST(req) {
 try{
   const body = await req.json();
@@ -28,10 +29,18 @@ await dbConnect();
     return NextResponse.json({message:"Login failed, register first."}, {status:400})
   }
 
- const passwordMatch = await bcrypt.compare(password, user.password);
- if(!passwordMatch){
-  return NextResponse.json({message:"Invalid credentials."}, {status:400})
- }
+let passwordCompare;
+  try{
+ passwordCompare =  await bcrypt.compare(password, user.password);
+
+if (!passwordCompare) {
+  return NextResponse.json({message:"Invalid credentials."}, {status:400});
+}
+  }
+  catch(errors){
+      return NextResponse.json({message:"Invalid credentials."}, {status:400})
+
+  }
 
   const token = generateToken(user);
   
@@ -62,7 +71,3 @@ return NextResponse.json({
   );
 }
 }
-
-
-
-  

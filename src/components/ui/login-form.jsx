@@ -33,8 +33,8 @@ export function LoginForm() {
     if(response.ok){
       setState({success:true,errors:{}})
       setTimeout(() => {
-        window.location.href = '/'
-        console.log("login successful")
+        window.location.href = '/blogs'
+       
       }, 1000)
         } else {
       if(result.errors) {

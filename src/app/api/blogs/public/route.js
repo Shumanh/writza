@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/mongodb";
 import Blog from "@/models/Blog";
+import { Cookies } from "@/lib/auth/cookies";
 
 export async function GET() {
-    let getAllBlogs;
 
     try {
+        const user =  Cookies();
+if(!user){
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
         await dbConnect();
-        getAllBlogs = await Blog.find({});
-        return NextResponse.json(getAllBlogs, { status: 200 });
+        const allBlogs = await Blog.find({});
+        return NextResponse.json(allBlogs, { status: 200 });
     } catch (error) {
         console.error("Database error:", error);
         return NextResponse.json({
