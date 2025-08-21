@@ -12,7 +12,8 @@ export async function PUT(req) {
     const verifyUser = await Cookies();
 
     if (!verifyUser) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return NextResponse.json({ error:true,
+            message: "Unauthorized" }, { status: 401 });
     }
 
     try {
@@ -21,23 +22,21 @@ export async function PUT(req) {
 
         if (!blogId) {
             return NextResponse.json(
-                { error: "Blog ID is required in URL parameters" }, 
+                { error:true,
+                message : "Blog ID is required in URL parameters" }, 
                 { status: 400 }
             );
         }
 
         const body = await req.json();
-        const { title, shortDescription, content, tags, image } = body;
 
-        const validatedBlog = BlogValidation.safeParse({
-            title, shortDescription, content, tags, image
-        });
+
+        const validatedBlog = BlogValidation.safeParse(body);
 
         if (!validatedBlog.success) {
             return NextResponse.json({
-                error: "Validation failed",
-                errors: validatedBlog.error.format()
-            }, { status: 400 });
+                message:validatedBlog.error.format()}, 
+                { status: 400 });
         }
 
         await dbConnect();
@@ -45,7 +44,9 @@ export async function PUT(req) {
         const existingBlog = await Blog.findById(blogId);
         if (!existingBlog) {
             return NextResponse.json(
-                { error: "Blog not found" }, 
+    
+                { error:true ,
+                    message: "Blog not found" }, 
                 { status: 404 }
             );
         }
@@ -53,10 +54,14 @@ export async function PUT(req) {
         
         if (existingBlog.author.toString() !== verifyUser.id) {
             return NextResponse.json(
-                { error: "Forbidden: You can only update your own blogs" }, 
+                
+                { error:true,
+                    message: "Forbidden: You can only update your own blogs" }, 
                 { status: 403 }
             );
         }
+
+        const {title , shortDescription , content , tags , image , } = validatedBlog.data;
 
         
       
@@ -64,12 +69,11 @@ export async function PUT(req) {
         const updatedBlog = await Blog.findByIdAndUpdate(
             blogId,
             {
-                title: validatedBlog.data.title,
-                shortDescription: validatedBlog.data.shortDescription,
-                content: validatedBlog.data.content,
-                tags: validatedBlog.data.tags,
-                image: validatedBlog.data.image,
-              
+              title , 
+              shortDescription , 
+              content , 
+              tags ,
+              image
             },
             { 
                 new: true, 
@@ -80,6 +84,7 @@ export async function PUT(req) {
         console.log(`Blog ${blogId} updated successfully by user ${verifyUser.id}`);
 
         return NextResponse.json({
+            error: false ,
             message: "Blog updated successfully!",
             blog: updatedBlog,
         }, { status: 200 });
@@ -88,7 +93,9 @@ export async function PUT(req) {
         console.error("Blog update error:", error);
         
         return NextResponse.json(
-            { error: "Internal server error" }, 
+            { 
+                error:true,
+                message: "Internal server error" }, 
             { status: 500 }
         );
     }   

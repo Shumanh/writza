@@ -6,32 +6,30 @@ import { dbConnect } from '@/lib/db/mongodb';
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { username, email, password, confirmPassword } = body;
 
-    const {error} = UserformSchema.safeParse({
-      username, email, password, confirmPassword
-    });
+    const parsed = UserformSchema.safeParse(body);
 
-    if (error) { 
+    if (!parsed.success) { 
       return NextResponse.json(
-        { message : error.format()}, 
-        { status: 400 }
+        { errors: parsed.error.format()},   { status: 400 }
       );
     }
+const {username , email , password } = parsed.data;
+
 
     await dbConnect();
 
     const existingByEmail = await User.findOne({ email });
     if (existingByEmail) {
       return NextResponse.json(
-        { errors: { email: ['Email is already registered'] } },
+        { errors: { email: ["Email is already registered"] }},
         { status: 400 }
       );
     }
     const existingByUsername = await User.findOne({ username });
     if (existingByUsername) {
       return NextResponse.json(
-        { errors: { username: ['Username is taken'] } },
+        { errors: { username: ["Username is already taken"] }},
         { status: 400 }
       );
     }

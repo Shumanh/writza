@@ -29,18 +29,14 @@ await dbConnect();
     return NextResponse.json({message:"Login failed, register first."}, {status:400})
   }
 
-let passwordCompare;
-  try{
- passwordCompare =  await bcrypt.compare(password, user.password);
+
+  
+  let passwordCompare =  await bcrypt.compare(password, user.password);
+
 
 if (!passwordCompare) {
   return NextResponse.json({message:"Invalid credentials."}, {status:400});
 }
-  }
-  catch(errors){
-      return NextResponse.json({message:"Invalid credentials."}, {status:400})
-
-  }
 
   const token = generateToken(user);
   

@@ -6,9 +6,12 @@ import { Cookies } from "@/lib/auth/cookies";
 export async function GET() {
 
     try {
-        const user =  Cookies();
+        const user = await Cookies();
 if(!user){
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+        { error: true , 
+            message : "User is unauthorized"
+ }, { status: 401 });
 }
         await dbConnect();
         const allBlogs = await Blog.find({});
@@ -16,8 +19,11 @@ if(!user){
     } catch (error) {
         console.error("Database error:", error);
         return NextResponse.json({
-            error: "Failed to fetch blogs from the database."
+            error:true,
+            message: "Failed to fetch blogs from the database."
         }, { status: 500 });
     }
 }
+
+
 

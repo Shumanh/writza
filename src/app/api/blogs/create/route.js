@@ -11,8 +11,6 @@ import User from "@/models/User";
     return `${baseSlug}-${blogId}`;
 }
 
-
-
 export async function POST(req) {
    
     try{
@@ -35,15 +33,12 @@ if(!verifyUser)
         if (!inputValidate.success) {
             return NextResponse.json(
                 { 
-                    error: "Validation failed",
-                    errors: inputValidate.error.format(),
-                },
-                { status: 400 }
+             message: inputValidate.error.format(),},
+             { status: 400 }
             );
         }
 
         await dbConnect();
-
         
         const tempSlug = slugify(inputValidate.data.title, { lower: true, strict: true });
         
@@ -59,34 +54,30 @@ if(!verifyUser)
         }
 
         const savedBlog = await Blog.create(blogData);
-
-       
         const uniqueSlug = generateUniqueSlug(inputValidate.data.title, savedBlog._id);
         
         savedBlog.slug = uniqueSlug;
         await savedBlog.save();
-
         await savedBlog.populate('author', 'email');
-
         return NextResponse.json(
             { 
+            error:false,
                 message: "Blog created successfully!",
                 blog: savedBlog,
                 slug: uniqueSlug 
             }, 
             { status: 201 }
         );
-
     }
 
      catch (error) {
         console.error("Blog creation error:", error);
         
-        
         }
 
         return NextResponse.json(
-            { error: "Internal Server Error - Failed to create blog" },
+            { error:true,
+                message: "Internal Server Error - Failed to create blog" },
             { status: 500 }
         );
     
