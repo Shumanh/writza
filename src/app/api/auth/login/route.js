@@ -30,7 +30,7 @@ await dbConnect();
   }
 
 
-  
+
   let passwordCompare =  await bcrypt.compare(password, user.password);
 
 
