@@ -1,4 +1,4 @@
-import { ViewBlogs } from "@/components/ui/viewblogs"
+import { ViewBlogs } from "@/components/ui/blogs/viewblogs"
 
 export default function BlogsPage(){
   return (
