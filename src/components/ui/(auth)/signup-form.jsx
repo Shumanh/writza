@@ -3,11 +3,33 @@ import Link from "next/link"
 import { useState } from "react"
 
 
-export function SignupForm() {
- 
+export  async  function SignupForm(e) {
+
+  e.preventDefault()
+
+  const formData = new FormData(e.target);
+
+  const userData = {
+username : formData.get('username') ,
+  email : formData.get("email") , 
+  password : formData.get("password") , 
+  confirmPassword : formData.get('confirmpassword')
+  }
   
 
+try {
+  const response =  await fetch('/api/auth/signup', {
+method:"POST" , 
+headers : {
+"Content-Type":"application/json",
+},
+body: JSON.stringify(userData)
+  })
+}
 
+catch(error){
+
+}
 
 
 
