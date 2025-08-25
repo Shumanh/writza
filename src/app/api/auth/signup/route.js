@@ -5,13 +5,13 @@ import { dbConnect } from '@/lib/db/mongodb';
 
 export async function POST(req) {
   try {
-    const body = await req.json();
+    const userData = await req.json();
 
-    const parsed = UserformSchema.safeParse(body);
+    const parsed = UserformSchema.safeParse(userData);
 
     if (!parsed.success) { 
       return NextResponse.json(
-        { errors: parsed.error.format()},   { status: 400 }
+        { errors: parsed.error.flatten().fieldErrors},   { status: 400 }
       );
     }
 const {username , email , password } = parsed.data;

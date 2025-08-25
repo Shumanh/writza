@@ -9,33 +9,34 @@ import { generateToken } from "@/lib/auth/jwt";
 
 
 
+
 export async function POST(req) {
 try{
-  const body = await req.json();
-  const {email,password } = body
+  const userData  = await req.json();
+const parsed = LoginFormSchema.safeParse(userData)
 
-const loginValidation = LoginFormSchema.safeParse({email,password});
-if(!loginValidation.success){
+if(!parsed.success){
   return NextResponse.json({
-    message: "Validation failed",
-    errors: loginValidation.error.flatten().fieldErrors
+   errors: parsed.error.flatten().fieldErrors
   }, {status:400})
 }
+
+const { email , password} = parsed.data
 await dbConnect();
 
   const user = await User.findOne({email});
-
   if(!user){
-    return NextResponse.json({message:"Login failed, register first."}, {status:400})
-  }
-
-
+    return NextResponse.json(
+      {errors:{email:["Login failed, register first."]}}, 
+      {status:400})
+  };
 
   let passwordCompare =  await bcrypt.compare(password, user.password);
 
-
 if (!passwordCompare) {
-  return NextResponse.json({message:"Invalid credentials."}, {status:400});
+  return NextResponse.json(
+    {errors:{password:"Invalid credentials."}},
+     {status:400});
 }
 
   const token = generateToken(user);
@@ -51,13 +52,7 @@ if (!passwordCompare) {
 });
 
 
-return NextResponse.json({
-      success: true,
-      message: "Login successful",
-      token  
-}, {
-      status: 200,
-    });
+   return NextResponse.json({ success: true }, { status: 200 });
 
 } catch (error) {
   console.error('Login error:', error);

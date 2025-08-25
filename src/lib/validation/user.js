@@ -26,6 +26,11 @@ export const UserformSchema = z.object({
 })
 
 export const LoginFormSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
-  password: z.string({ required_error: 'Password is required' })
+  email: z
+  .string()
+  .email({ message: 'Please enter a valid email.' })
+  .trim(),
+
+  password: z
+  .string({ message: 'Password is required' })
 });

@@ -1,95 +1,113 @@
 "use client"
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
+export function SignupForm() {
+  
+  const [message, setMessage] = useState('')
+  const [errors, setErrors] = useState('')
+  const router = useRouter()
 
-export  async  function SignupForm(e) {
+  async function handleSubmit(e){
+    e.preventDefault()
+    
+    
+    setErrors('')
+    setMessage('')
 
-  e.preventDefault()
+    const formData = new FormData(e.target);
 
-  const formData = new FormData(e.target);
+    const userData = {
+      username: formData.get('username'),
+      email: formData.get("email"), 
+      password: formData.get("password"), 
+      confirmPassword: formData.get('confirmPassword')
+    }
 
-  const userData = {
-username : formData.get('username') ,
-  email : formData.get("email") , 
-  password : formData.get("password") , 
-  confirmPassword : formData.get('confirmpassword')
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method:"POST", 
+        headers: {
+          "Content-Type":"application/json",
+        },
+        body: JSON.stringify(userData)
+      })
+
+      const res = await response.json();
+
+  
+      
+      if(response.ok){
+        setMessage('User created Successfully...Redirecting to the login')
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 2000)
+      }
+      else{
+        setErrors(res.errors)
+      }
+    }
+    catch(error){
+      setErrors({global: "Network error. Please try again."})
+    }
   }
-  
 
-try {
-  const response =  await fetch('/api/auth/signup', {
-method:"POST" , 
-headers : {
-"Content-Type":"application/json",
-},
-body: JSON.stringify(userData)
-  })
-}
+  return(
+    <div className="w-full h-screen flex">   
 
-catch(error){
+      <div className="border w-1/3 h-[50%] m-auto rounded-md bg-neutral-900 dark:border-gray-700 shadow">
+        <h1 className="font-bold text-4xl text-center pt-6"> Sign up</h1>
 
-}
+        <form onSubmit={handleSubmit} className="ml-10 mr-10">
+          {errors.global && <div className="mt-4 p-2 bg-red-500 text-white rounded-md">{errors.global}</div>}
 
+          <input 
+            type="text"
+            className="border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
+            name="username"
+            placeholder="Username"
+          />
+          {errors.username && <p className="text-red-500">{errors.username[0]}</p>} 
+            
+          <input
+            type="text"
+            className="border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
+            name="email"
+            placeholder="Email" />
+          {errors.email && <p className="text-red-500">{errors.email[0]}</p>} 
+            
+          <input
+            type="password"
+            className="border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
+            name="password"
+            placeholder="Password" />
+          {errors.password && <p className="text-red-500">{errors.password[0]}</p>} 
+          
+          <input
+            type="password"
+            className="border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
+            name="confirmPassword"
+            placeholder="Confirm Password" />
 
-
-
-return(
-
-    
-<div className = " w-full h-screen flex   ">   
-
-<div className = "border w-1/3 h-[50%] m-auto rounded-md  bg-neutral-900 dark:border-gray-700 shadow ">
- <h1 className = "font-bold text-4xl text-center pt-6"> Sign up</h1>
-
-<form  className=" ml-10 mr-10 ">
-
- <input 
-   type="text"
-    className = "border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
-    name="username"
-    placeholder="Username" />
-    
-   
-<input
-type = "text"
-className = "border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
-name = "email"
-placeholder = "Email" />
-    
-  
-
-<input
-type = "password"
-className="border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
-name = "password"
-placeholder="Password" />
-  
-
-<input
- type = "password"
- className = "border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
- name = "confirmPassword"
- placeholder="Confirm Password" />
-    
-  
-          <button>
+          {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword[0]}</p>} 
+          
+          <button type="submit" className="mt-4 p-2 bg-blue-500 text-white rounded-md">
             Create Account
           </button>
 
+                {message && <div className="mt-4 p-2 bg-green-500 text-white rounded-md">{message}</div>}
 
 
-<div className="flex justify-center mt-3">
-    <p> Already have an account ? </p>
-      <Link  href="/auth/login"className="ml-1 border-b-1" >Log in</Link>
-</div>
- 
-    </form>
+          <div className="flex justify-center mt-3">
+            <p> Already have an account ? </p>
+            <Link href="/auth/login" className="ml-1 border-b-1">Log in</Link> 
+          </div>
+         
+        </form>
 
-</div>
-    
-</div>
-)
-
-  
+      </div>
+        
+    </div>
+  )
 }
