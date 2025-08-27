@@ -9,6 +9,8 @@ export function LoginForm() {
 
   const [message , setMessage] = useState('')
   const [errors , setErrors] = useState('')
+ 
+
   const router = useRouter()
 
 async function handleSubmit (e){
@@ -41,8 +43,8 @@ console.log(res)
 if(response.ok){
 setMessage("Login sucessful...!!")
 setTimeout(()=>{
-router.push('/blogs')
- } , 2000)
+router.push('/blogs/view')
+ } , 1000)
 }else{
   setErrors(res.errors)
 }

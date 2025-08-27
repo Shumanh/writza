@@ -42,7 +42,7 @@ export function SignupForm() {
         setMessage('User created Successfully...Redirecting to the login')
         setTimeout(() => {
           router.push('/auth/login')
-        }, 2000)
+        }, 1000)
       }
       else{
         setErrors(res.errors)

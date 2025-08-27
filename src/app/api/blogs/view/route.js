@@ -15,15 +15,14 @@ if(!user){
 }
         await dbConnect();
         const allBlogs = await Blog.find({});
-        return NextResponse.json(allBlogs, { status: 200 });
+        return NextResponse.json({error:false,blogs:allBlogs});
     } catch (error) {
-        console.error("Database error:", error);
-        return NextResponse.json({
-            error:true,
-            message: "Failed to fetch blogs from the database."
-        }, { status: 500 });
-    }
+    console.error('Signup error:', error);
+    return NextResponse.json(
+      { errors: { global: 'An error occurred while creating account.' } },
+      { status: 500 }
+    );
+  }
 }
 
-
-
+    
