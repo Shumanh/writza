@@ -8,21 +8,30 @@ export async function GET(){
     
     const verifiedUser = await Cookies();
     if(!verifiedUser){
-        return NextResponse.json({error:true,
-            message:"Unauthorized"}, {status:401});
+        return NextResponse.json({
+         errors:"Unauthorized"}, {status:401});
     }
 
     try{
 
          await dbConnect();
          const myBlogs = await Blog.find({ author: verifiedUser.id });
-         return NextResponse.json(myBlogs, { status: 200 });
+           if(!myBlogs){
+            return NextResponse.json(
+
+                {errors : " Blogs couldnot find" } , {status : 200}
+            )
+        }
+         return NextResponse.json (
+         { blogs : myBlogs}, { status: 200 });
+
+      
 
     }
     catch(error){
         console.error("Error fetching user's blogs:", error);
-        return NextResponse.json({error:true,
-            message :"Internal Server Error"}, {status:500});
+        return NextResponse.json({
+            errors :"Internal Server Error"}, {status:500});
     }
 
 

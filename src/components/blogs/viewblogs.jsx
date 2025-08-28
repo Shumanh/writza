@@ -45,17 +45,29 @@ export function View() {
                         <h3>{blog.title}</h3>
                         <p>{blog.shortDescription}</p>
                         <div>{blog.content}</div>
-                        {blog.tags.length > 0 && (
-                            <div>
-                                Tags: {blog.tags.join(', ')}
-                            </div>
-                        )}
+                        <div>{blog.tags}</div>
+                       
                     </li>
                 ))}
             </ul>
            
 
-            <Link href="/blogs/create" className="ml-1 border-b-1 ">Create </Link> 
+
+
+ <div className="flex justify-center mt-3">
+          <Link href="/blogs/my-blogs" className="ml-1 border-b-1">
+            See my blog
+          </Link>
+        </div>
+
+
+         <div className="flex justify-center mt-3">
+                  <Link href="/blogs/create" className="ml-1 border-b-1">
+                    Create
+                  </Link>
+                </div>
+
+
 
             
 
