@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState} from "react"
+import Link from 'next/link'
 
 export function View() {
     const [errors, setErrors] = useState('')
@@ -52,6 +53,13 @@ export function View() {
                     </li>
                 ))}
             </ul>
+           
+
+            <Link href="/blogs/create" className="ml-1 border-b-1 ">Create </Link> 
+
+            
+
+
         </div>
     )
 }

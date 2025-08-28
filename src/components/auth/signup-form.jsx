@@ -92,9 +92,14 @@ export function SignupForm() {
 
           {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword[0]}</p>} 
           
-          <button type="submit" className="mt-4 p-2 bg-blue-500 text-white rounded-md">
+            <div className = "w-full  text-center">
+
+   <button type="submit" className="mt-4 p-2 bg-blue-500 text-white  rounded-md  ">
             Create Account
-          </button>
+    </button>
+ 
+ </div>
+
 
                 {message && <div className="mt-4 p-2 bg-green-500 text-white rounded-md">{message}</div>}
 

@@ -22,20 +22,20 @@ export const BlogValidation = z.object({
     
     ,
   
-  tags: z
-      .array(
+  tags: 
+      
         z.string().trim()
         .optional()
-      ),
+      ,
     
     
-  image: z
-      .object({
-        url: z.string().url({ message: "Image URL must be a valid URL" }).optional(),
-        alt: z.string().max(200, { message: "Alt text must be at most 200 characters" }).optional().default("")
-      })
-      .optional()
-      .default({ url: "", alt: "" })
+  // image: z
+  //     .object({
+  //       url: z.string().url({ message: "Image URL must be a valid URL" }).optional(),
+  //       alt: z.string().max(200, { message: "Alt text must be at most 200 characters" }).optional().default("")
+  //     })
+  //     .optional()
+  //     .default({ url: "", alt: "" })
 });
 
 

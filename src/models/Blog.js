@@ -28,25 +28,25 @@ const blogSchema = new mongoose.Schema(
       required: [true, "Content is required"],
       trim: true,
     },
-    tags: [
+    tags: 
       {
         type: String,
         trim: true,
         lowercase: true,
         maxlength: [25, "Each tag should not exceed 25 characters"],
       },
-    ],
-    image: {
-      url: {
-        type: String,
-        default: "",
-      },
-      alt: {
-        type: String,
-        default: "",
-        maxlength: [200, "Alt text should not exceed 200 characters"],
-      },
-    },
+    // image: {
+    //   url: {
+    //     type: String,
+    //     default: "",
+    //     required:false
+    //   },
+    //   alt: {
+    //     type: String,
+    //     default: "",
+    //     maxlength: [200, "Alt text should not exceed 200 characters"],
+    //   },
+    // },
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

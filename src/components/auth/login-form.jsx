@@ -38,7 +38,6 @@ body:JSON.stringify(userData)
 })
 
 const res = await response.json()
-console.log(res)
 
 if(response.ok){
 setMessage("Login sucessful...!!")

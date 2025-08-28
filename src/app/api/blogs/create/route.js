@@ -20,20 +20,20 @@ if(!verifyUser)
      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const body = await req.json();
-        const { title, shortDescription, content, tags, image } = body;
+        const { title, shortDescription, content, tags } = body;
 
         const inputValidate = BlogValidation.safeParse({
             title,
             shortDescription,
             content,
-            tags,
-            image
+            tags
+        
         });
 
         if (!inputValidate.success) {
             return NextResponse.json(
                 { 
-             message: inputValidate.error.format(),},
+             errors: inputValidate.error.flatten().fieldErrors},
              { status: 400 }
             );
         }
@@ -61,7 +61,6 @@ if(!verifyUser)
         await savedBlog.populate('author', 'email');
         return NextResponse.json(
             { 
-            error:false,
                 message: "Blog created successfully!",
                 blog: savedBlog,
                 slug: uniqueSlug 
@@ -76,8 +75,8 @@ if(!verifyUser)
         }
 
         return NextResponse.json(
-            { error:true,
-                message: "Internal Server Error - Failed to create blog" },
+            { 
+               errors: "Internal Server Error - Failed to create blog" },
             { status: 500 }
         );
     
