@@ -15,11 +15,11 @@ export async function GET(request) {
 
         await dbConnect();
         
-        
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
         
         if (id) {
+    
             const blog = await Blog.findById(id);
             if (!blog) {
                 return NextResponse.json(
@@ -28,10 +28,45 @@ export async function GET(request) {
                 );
             }
 
-            return NextResponse.json({ error: false, blog: blog });
+    
+            const blogData = blog.toObject();
+
+            const isOwner = blog.author.toString() === user.id;
+
+            const blogWithEditPermission = {
+                ...blogData, 
+                canEdit: isOwner , 
+
+                canDelete:isOwner     
+            };
+
+   
+            return NextResponse.json({
+                error: false,
+                blog: blogWithEditPermission
+            });
         } else {
+ 
             const allBlogs = await Blog.find({});
-            return NextResponse.json({ error: false, blogs: allBlogs });
+            const blogsWithEditPermissions = allBlogs.map(blog => {
+        
+                const blogData = blog.toObject();
+                const isOwner = blog.author.toString() === user.id;
+
+
+                return {
+                    ...blogData,     
+                    canEdit: isOwner ,  
+                     
+                    canDelete:isOwner
+                };
+            });
+
+            
+            return NextResponse.json({
+                error: false,
+                blogs: blogsWithEditPermissions
+            });
         }
     } catch (error) {
         console.error('Blog fetch error:', error);

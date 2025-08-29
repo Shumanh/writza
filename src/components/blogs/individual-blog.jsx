@@ -1,5 +1,6 @@
 "use client"
 import {useState , useEffect} from "react"
+import Link from "next/link";
 
  export function IndividualBlog({id})
  {
@@ -50,7 +51,47 @@ if (loading){
       <h1>{blog.title}</h1>
       <p>{blog.shortDescription}</p>
       <div>{blog.content}</div>
-      <div>{blog.slugs}</div>
+      <div>{blog.tags}</div>
+
+
+  <div className = " flex ">
+      {blog.canEdit &&   (
+        <div style={{ marginTop: "1rem" }}>
+          <Link
+            href={`/blogs/update/${blog._id}`}
+            style={{
+              backgroundColor: "#007bff",
+              color: "white",
+              padding: "0.5rem 1rem",
+              textDecoration: "none",
+              borderRadius: "4px",
+              display: "inline-block"
+            }}
+          >
+            Update
+          </Link>
+        </div>
+      )}
+
+      {blog.canDelete &&   (
+        <div style={{ marginTop: "1rem" }}>
+          <Link
+            href={`/blogs/delete/${blog._id}`}
+            className = "ml-4"
+            style={{
+              backgroundColor: "#007bff",
+              color: "white",
+              padding: "0.5rem 1rem",
+              textDecoration: "none",
+              borderRadius: "4px",
+              display: "inline-block",
+            }}
+          >
+           Delete
+          </Link>
+        </div>
+      )}
+      </div>
     </div>
   )
 }
