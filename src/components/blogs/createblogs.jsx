@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import {useRouter} from 'next/navigation'
 
 export function Create() {
   const [errors, setErrors] = useState("");
   const [message, setMessage] = useState("");
+  const router = useRouter()
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -33,9 +35,12 @@ export function Create() {
       if (response.ok) {
         setMessage(res.message);
         setErrors("");
+        setTimeout(() => {
+;
+}, 3000);
         e.target.reset();
         setTimeout(() => {
-          setMessage("");
+          router.push('/blogs/view')
         }, 2000);
       } else {
         setErrors(res.errors);
@@ -99,19 +104,7 @@ export function Create() {
           </button>
         </div>
 
-        <div className="flex justify-center mt-3">
-          <Link href="/blogs/view" className="ml-1 border-b-1">
-            See all blogs
-          </Link>
-        </div>
-
- <div className="flex justify-center mt-3">
-          <Link href="/blogs/my-blogs" className="ml-1 border-b-1">
-            See my blog
-          </Link>
-        </div>
-
-
+       
         {errors.global && (
           <div className="mt-4 p-2 bg-red-500 text-white rounded-md">
             {errors.global}

@@ -27,7 +27,6 @@ export function View() {
     fetchBlogs();
     },[]);
   
-
     
     if (loading) {
         return <div>Loading blogs...</div>
@@ -42,36 +41,17 @@ export function View() {
             <ul>
                 {blogs.map((blog) => (
                     <li key={blog._id}>
-                        <h3>{blog.title}</h3>
-                        <p>{blog.shortDescription}</p>
-                        <div>{blog.content}</div>
-                        <div>{blog.tags}</div>
-                       
+                        <Link href={`/blogs/${blog.slug}`}>
+                            <div style={{ cursor: "pointer", padding: "1rem", border: "1px solid #eee", margin: "0.5rem 0" }}>
+                                <h3>{blog.title}</h3>
+                                <p>{blog.shortDescription}</p>
+                                <div>{blog.content}</div>
+                                <div>{blog.tags}</div>
+                            </div>
+                        </Link>
                     </li>
                 ))}
             </ul>
-           
-
-
-
- <div className="flex justify-center mt-3">
-          <Link href="/blogs/my-blogs" className="ml-1 border-b-1">
-            See my blog
-          </Link>
-        </div>
-
-
-         <div className="flex justify-center mt-3">
-                  <Link href="/blogs/create" className="ml-1 border-b-1">
-                    Create
-                  </Link>
-                </div>
-
-
-
-            
-
-
         </div>
     )
 }

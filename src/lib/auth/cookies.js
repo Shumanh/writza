@@ -11,6 +11,7 @@ export async function Cookies() {
     const verifyUser = verifyToken(token);
     console.log("verified", verifyUser);
     if (!verifyUser) return null;
+    else 
     return verifyUser; 
 
   } catch (error) {

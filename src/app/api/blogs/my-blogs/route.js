@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/mongodb";
 import Blog from "@/models/Blog";
 import { Cookies } from "@/lib/auth/cookies";
-
+import User from "@/models/User";
 
 export async function GET(){
     
@@ -15,7 +15,7 @@ export async function GET(){
     try{
 
          await dbConnect();
-         const myBlogs = await Blog.find({ author: verifiedUser.id });
+         const myBlogs = await Blog.find({ author: verifiedUser.id }).populate('author', 'email');
            if(!myBlogs){
             return NextResponse.json(
 

@@ -7,7 +7,6 @@ import User from "@/models/User";
 
 
 
-
 export async function PUT(req) {
     const verifyUser = await Cookies();
 
@@ -61,7 +60,7 @@ export async function PUT(req) {
             );
         }
 
-        const {title , shortDescription , content , tags , image , } = validatedBlog.data;
+        const {title , shortDescription , content , tags  } = validatedBlog.data;
 
         
       
@@ -73,7 +72,7 @@ export async function PUT(req) {
               shortDescription , 
               content , 
               tags ,
-              image
+     
             },
             { 
                 new: true, 
@@ -84,7 +83,7 @@ export async function PUT(req) {
         console.log(`Blog ${blogId} updated successfully by user ${verifyUser.id}`);
 
         return NextResponse.json({
-            error: false ,
+
             message: "Blog updated successfully!",
             blog: updatedBlog,
         }, { status: 200 });
@@ -104,4 +103,3 @@ export async function PUT(req) {
 
      
     
-
