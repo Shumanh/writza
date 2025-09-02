@@ -6,24 +6,27 @@ import { useRouter } from "next/navigation"
 export function SignupForm() {
   
   const [message, setMessage] = useState('')
-  const [errors, setErrors] = useState('')
+  const [errors, setErrors] = useState({})
+  const [loading ,setLoading] = useState(false)
   const router = useRouter()
+
 
   async function handleSubmit(e){
     e.preventDefault()
-    
-    
-    setErrors('')
+
+    setLoading(true)
+    setErrors({})
     setMessage('')
 
     const formData = new FormData(e.target);
 
     const userData = {
-      username: formData.get('username'),
-      email: formData.get("email"), 
-      password: formData.get("password"), 
-      confirmPassword: formData.get('confirmPassword')
+      username: formData.get('username').trim(),
+      email: formData.get("email").trim(), 
+      password: formData.get("password").trim(), 
+      confirmPassword: formData.get('confirmPassword').trim()
     }
+
 
     try {
       const response = await fetch('/api/auth/signup', {
@@ -38,18 +41,21 @@ export function SignupForm() {
 
   
       
-      if(response.ok){
-        setMessage('User created Successfully...Redirecting to the login')
+      if(res.error===false){
+        setMessage(res.message)
         setTimeout(() => {
           router.push('/auth/login')
         }, 1000)
       }
       else{
-        setErrors(res.errors)
+          setErrors(res.message || { global: "Something went wrong" })
       }
     }
     catch(error){
       setErrors({global: "Network error. Please try again."})
+    }
+    finally{
+      setLoading(false)
     }
   }
 
@@ -71,7 +77,7 @@ export function SignupForm() {
           {errors.username && <p className="text-red-500">{errors.username[0]}</p>} 
             
           <input
-            type="text"
+            type="email"
             className="border p-2 rounded-md dark:border-gray-700 shadow-2xl mt-4 w-full"
             name="email"
             placeholder="Email" />
@@ -95,14 +101,13 @@ export function SignupForm() {
             <div className = "w-full  text-center">
 
    <button type="submit" className="mt-4 p-2 bg-blue-500 text-white  rounded-md  ">
-            Create Account
+           {loading ? "Creating Account" : "Create Account"}
+
     </button>
  
  </div>
 
-
-                {message && <div className="mt-4 p-2 bg-green-500 text-white rounded-md">{message}</div>}
-
+      {message && <div className="mt-4 p-2 bg-green-500 text-white rounded-md">{message}</div>}
 
           <div className="flex justify-center mt-3">
             <p> Already have an account ? </p>
