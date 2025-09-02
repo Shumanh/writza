@@ -13,8 +13,10 @@ try{
 const parsed = LoginFormSchema.safeParse(userData)
 
 if(!parsed.success){
-  return NextResponse.json({
-   errors: parsed.error.flatten().fieldErrors
+  return NextResponse.json(
+  {
+   error : true ,
+  message : parsed.error.flatten().fieldErrors
   }, {status:400})
 }
 
@@ -24,7 +26,9 @@ await dbConnect();
   const user = await User.findOne({email});
   if(!user){
     return NextResponse.json(
-      {errors:{email:["Login failed, register first."]}}, 
+      {
+        error:true , 
+        message:{email:["Register your email at first..."]}}, 
       {status:400})
   };
 
@@ -32,7 +36,9 @@ await dbConnect();
 
 if (!passwordCompare) {
   return NextResponse.json(
-    {errors:{password:"Invalid credentials."}},
+    {
+      error:true , 
+      message:{password:["Invalid credentials."]}},
      {status:400});
 }
 
@@ -48,13 +54,16 @@ if (!passwordCompare) {
   secure: process.env.NODE_ENV === 'production'
 });
 
-
-   return NextResponse.json({ success: true }, { status: 200 });
+   return NextResponse.json({ 
+    error : false , 
+    message : "User logged in Successfully...!! "
+    }, { status: 200 });
 
 } catch (error) {
   console.error('Login error:', error);
   return NextResponse.json(
-    { errors: { global: "An error occurred during login" } }, 
+    { error:true , 
+      message: { global: ["An error occurred during login" ]} }, 
     { status: 500 }
   );
 }

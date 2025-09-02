@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { headers } from "next/headers"
 
 export function SignupForm() {
   
@@ -28,27 +29,22 @@ export function SignupForm() {
     }
 
 
+    const url = '/api/auth/signup'
+    const options = {method : "POST" , headers : {accept:"application/json" , body:JSON.stringify(userData)}}
+
     try {
-      const response = await fetch('/api/auth/signup', {
-        method:"POST", 
-        headers: {
-          "Content-Type":"application/json",
-        },
-        body: JSON.stringify(userData)
-      })
+      const response = await fetch(url , options)
 
-      const res = await response.json();
+      const data = await response.json();
 
-  
-      
-      if(res.error===false){
-        setMessage(res.message)
+      if(data.error===false){
+        setMessage(data.message)
         setTimeout(() => {
           router.push('/auth/login')
         }, 1000)
       }
       else{
-          setErrors(res.message || { global: "Something went wrong" })
+          setErrors(data.message || { global: "Something went wrong" })
       }
     }
     catch(error){

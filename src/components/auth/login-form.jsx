@@ -8,16 +8,18 @@ import { useRouter } from 'next/navigation';
 export function LoginForm() {
 
   const [message , setMessage] = useState('')
-  const [errors , setErrors] = useState('')
- 
+  const [errors , setErrors] = useState({})
+  const [loading , setLoading ]  = useState(false)
+
 
   const router = useRouter()
 
 async function handleSubmit (e){
 
 e.preventDefault()
-setErrors('')
+setErrors({})
 setMessage('')
+setLoading(true)
 
 
 const formData = new FormData(e.target)
@@ -27,37 +29,34 @@ const userData = {
   password : formData.get("password")
 }
 
+const url = '/api/auth/login';
+const options = {method: 'POST', headers: {accept: 'application/json'} , body:JSON.stringify(userData)};
+
 try{
+const response = await fetch(url , options)
+const data = await response.json()
 
-const response = await fetch("/api/auth/login" , {
-  method:"POST" , 
-headers:{
-  "Content-Type" : "application/json"
-} , 
-body:JSON.stringify(userData)
-})
-
-const res = await response.json()
-
-if(response.ok){
-setMessage("Login sucessful...!!")
+if(data.error===false){
+setMessage(data.message)
 setTimeout(()=>{
 router.push('/blogs/view')
  } , 1000)
-}else{
-  setErrors(res.errors)
-}
 
+}else{
+  setErrors(data.message ||{ global: "Something went wrong" } )
+}
 }
 
 catch(error){
  console.log(error)
-   setErrors( {global : error.message || "An unexpected error occurred"})
+   setErrors( {global : "An unexpected error occurred"})
 
+}
+finally {
+  setLoading(false)
 }
 
 }
-
 
   return (
     <div className="flex h-screen">
@@ -74,7 +73,6 @@ catch(error){
 
 
 
-
             <div className="mt-4">
               <label>Enter your email</label>
               <input
@@ -84,7 +82,7 @@ catch(error){
                 placeholder="me@example.com"
                 className="flex p-1 border border-white w-full mt-2 rounded-lg shadow dark:border-gray-700 pl-2"
               />
-                {errors.email && <p className="text-red-500 mt-1">{errors.email}</p>}
+                {errors.email && <p className="text-red-500 mt-1">{errors.email[0]}</p>}
 
              
               <div className="mt-4 flex justify-between mr-4">
@@ -97,12 +95,12 @@ catch(error){
                 name="password"
                 className="flex p-1 border border-white mt-2 rounded-lg shadow dark:border w-full dark:border-gray-700 pl-2"
               />
-               {errors.password && <p className="text-red-500 mt-1">{errors.password}</p>}
+               {errors.password && <p className="text-red-500 mt-1">{errors.password[0]}</p>}
             
-              
+  
               <div className="p-1 border border-white mt-6 rounded-lg shadow dark:border dark:border-gray-700 pl-2 text-center bg-white text-black">
                 <button type="submit">
-                Login 
+                {loading ? "Logging in ..." : "Login"}
                 </button>
 
             {message && <div className="mt-4 p-2 bg-green-500 text-white rounded-md">{message}</div>}

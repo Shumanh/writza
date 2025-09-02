@@ -27,7 +27,7 @@ export const UserformSchema = z.object({
 
 export const LoginFormSchema = z.object({
   email: z
-  .string()
+  .string({required_error:'Email is required'})
   .email({ message: 'Please enter a valid email.' })
   .trim(),
 
