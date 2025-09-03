@@ -1,21 +1,36 @@
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth/jwt";
 
-export async function Cookies() {
-  try {
-    const cookieStore =  await cookies();
-    const token =  cookieStore.get("token")?.value;
-
-    if (!token) return null;
-
-    const verifyUser = verifyToken(token);
-    console.log("verified", verifyUser);
-    if (!verifyUser) return null;
-    else 
-    return verifyUser; 
-
-  } catch (error) {
-    console.error("Error in Cookies function:", error);
-    return null;
+export async  function getUserFromCookies(){
+  
+  try{
+const cookieStore  = await cookies()
+const userToken = cookieStore.get('token')?.value
+if(!userToken){
+return ( {
+  error : true , 
+  message : " cookie could not be found " 
+})
+}
+const verifyUser =  verifyToken(userToken)
+if(!verifyUser){
+  return ({
+    error : true ,
+    message : " user could not be verified , invalid token"
+  })
+}
+else 
+  return ({
+error:false , 
+message : "Token verified successfully" , 
+data : verifyUser
+})
+  }
+  catch(error){
+    console.error("Error in Cookies function : " , error)
+    return ({
+      error:true , 
+      message : " cookie error"
+    })
   }
 }
