@@ -5,12 +5,14 @@ import { useState } from "react";
 import {useRouter} from 'next/navigation'
 
 export function Create() {
-  const [errors, setErrors] = useState("");
+  const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+  const [loading , setLoading ] = useState(false);
   const router = useRouter()
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true)
 
     const formData = new FormData(e.target);
 
@@ -30,10 +32,10 @@ export function Create() {
         body: JSON.stringify(blogsData),
       });
 
-      const res = await response.json();
+      const data = await response.json();
 
-      if (response.ok) {
-        setMessage(res.message);
+      if (data.error===false) {
+        setMessage(data.message);
         setErrors("");
         setTimeout(() => {
 ;
@@ -43,11 +45,14 @@ export function Create() {
           router.push('/blogs/view')
         }, 2000);
       } else {
-        setErrors(res.errors);
+        setErrors(data.message);
       }
     } catch (error) {
       console.log(error);
       setErrors({ global: "An unexpected error occured" });
+    }
+    finally{
+      setLoading(false)
     }
   }
   return (
@@ -66,7 +71,7 @@ export function Create() {
           name="title"
           placeholder="Enter your Title"
         />
-        {errors.title && <p className="text-red-500 mt-1">{errors.title}</p>}
+        {errors.title && <p className="text-red-500 mt-1">{errors.title[0]}</p>}
 
         <input
           type="text"
@@ -75,7 +80,7 @@ export function Create() {
           placeholder="Describe in short"
         />
         {errors.shortDescription && (
-          <p className="text-red-500 mt-1">{errors.shortDescription}</p>
+          <p className="text-red-500 mt-1">{errors.shortDescription[0]}</p>
         )}
 
         <input
@@ -85,7 +90,7 @@ export function Create() {
           placeholder="Content"
         />
         {errors.content && (
-          <p className="text-red-500 mt-1">{errors.content}</p>
+          <p className="text-red-500 mt-1">{errors.content[0]}</p>
         )}
 
         <input
@@ -100,7 +105,9 @@ export function Create() {
             type="submit"
             className="mt-4 p-2 bg-blue-500 text-white  rounded-md  "
           >
-            Submit Blog
+            {
+              loading ? "Submitting Blogs" : " Submit Blogs"
+            }
           </button>
         </div>
 
