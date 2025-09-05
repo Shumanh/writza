@@ -1,16 +1,17 @@
 import { dbConnect } from "@/lib/db/mongodb";
 import { BlogValidation } from "@/lib/validation/blog";
 import { NextResponse } from "next/server";
-import { Cookies } from "@/lib/auth/cookies";
+import { getUserFromCookies } from "@/lib/auth/cookies";
 import Blog from "@/models/Blog";
 import User from "@/models/User";
+import mongoose from "mongoose";
 
 
 
 export async function PUT(req) {
-    const verifyUser = await Cookies();
+    const verifyUser = await getUserFromCookies();
 
-    if (!verifyUser) {
+    if (verifyUser.error) {
         return NextResponse.json({ error:true,
             message: "Unauthorized" }, { status: 401 });
     }
@@ -28,7 +29,6 @@ export async function PUT(req) {
         }
 
         const body = await req.json();
-
 
         const validatedBlog = BlogValidation.safeParse(body);
 
@@ -50,8 +50,8 @@ export async function PUT(req) {
             );
         }
 
-        
-        if (existingBlog.author.toString() !== verifyUser.id) {
+    
+        if (existingBlog.author._id.toString() !== verifyUser.data.id) {
             return NextResponse.json(
                 
                 { error:true,
@@ -61,9 +61,6 @@ export async function PUT(req) {
         }
 
         const {title , shortDescription , content , tags  } = validatedBlog.data;
-
-        
-      
 
         const updatedBlog = await Blog.findByIdAndUpdate(
             blogId,
@@ -78,7 +75,7 @@ export async function PUT(req) {
                 new: true, 
                 runValidators: true 
             }
-        ).populate('author', 'email username');
+        ).populate('author', 'username');
 
         console.log(`Blog ${blogId} updated successfully by user ${verifyUser.id}`);
 
@@ -98,7 +95,7 @@ export async function PUT(req) {
             { status: 500 }
         );
     }   
-
+    
     }
 
      
