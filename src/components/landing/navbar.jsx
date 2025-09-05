@@ -21,6 +21,10 @@ export default function Navbar() {
             {" "}
             Write{" "}
           </button>
+          <Link href="/chat" className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
+            {" "}
+            Chat{" "}
+          </Link>
           <Link href="/auth/login" className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
             {" "}
             Sign In{" "}

@@ -2,7 +2,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { headers } from "next/headers"
+
 
 export function SignupForm() {
   
@@ -30,7 +30,7 @@ export function SignupForm() {
 
 
     const url = '/api/auth/signup'
-    const options = {method : "POST" , headers : {accept:"application/json" , body:JSON.stringify(userData)}}
+    const options = {method : "POST" , headers : {accept:"application/json" }, body:JSON.stringify(userData)}
 
     try {
       const response = await fetch(url , options)
@@ -53,13 +53,31 @@ export function SignupForm() {
     finally{
       setLoading(false)
     }
-  }
+}
 
   return(
     <div className="w-full h-screen flex">   
 
       <div className="border w-1/3 h-[50%] m-auto rounded-md bg-neutral-900 dark:border-gray-700 shadow">
-        <h1 className="font-bold text-4xl text-center pt-6"> Sign up</h1>
+        {/* Back Button */}
+        <div className="pt-4 pl-6">
+          <Link 
+            href="/" 
+            className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors duration-200"
+          >
+            <svg 
+              className="w-4 h-4 mr-2" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Home
+          </Link>
+        </div>
+        
+        <h1 className="font-bold text-4xl text-center pt-2"> Sign up</h1>
 
         <form onSubmit={handleSubmit} className="ml-10 mr-10">
           {errors.global && <div className="mt-4 p-2 bg-red-500 text-white rounded-md">{errors.global}</div>}
@@ -116,4 +134,4 @@ export function SignupForm() {
         
     </div>
   )
-}
+} 

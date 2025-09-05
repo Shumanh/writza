@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/mongodb";
 import Blog from "@/models/Blog";
-import { Cookies } from "@/lib/auth/cookies";
+import {getUserFromCookies} from "@/lib/auth/cookies"
 import User from "@/models/User";
 
 export async function GET(){
     
-    const verifiedUser = await Cookies();
-    if(!verifiedUser){
+    const verifiedUser = await getUserFromCookies();
+    if(verifiedUser.error){
         return NextResponse.json({
          errors:"Unauthorized"}, {status:401});
     }
@@ -15,11 +15,12 @@ export async function GET(){
     try{
 
          await dbConnect();
-         const myBlogs = await Blog.find({ author: verifiedUser.id }).populate('author', 'email');
+         
+         const myBlogs = await Blog.find({ author: verifiedUser.data.id }).populate('author' , 'username')
            if(!myBlogs){
             return NextResponse.json(
 
-                {errors : " Blogs couldnot find" } , {status : 200}
+             {errors : " Blogs couldnot find" } , {status : 200}
             )
         }
          return NextResponse.json (

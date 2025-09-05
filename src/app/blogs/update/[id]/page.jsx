@@ -1,7 +1,7 @@
 import { UpdateBlogForm } from "@/components/blogs/update";
 
-export default function UpdateBlogPage({ params }) {
-  const { id } = params;
+export default async function UpdateBlogPage({ params }) {
+  const { id } =await params;
   return (
     <div>
       <UpdateBlogForm id={id} />

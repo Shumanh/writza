@@ -35,27 +35,24 @@ export function View() {
 
   return (
     <div>
-      <ul>
-        {blogs.map((blog) => (
-          <li key={blog._id}>
-            <Link href={`/blogs/${blog.slug}`}>
-              <div
-                style={{
-                  cursor: "pointer",
-                  padding: "1rem",
-                  border: "1px solid #eee",
-                  margin: "0.5rem 0",
-                }}
-              >
-                <h3>{blog.title}</h3>
-                <p>{blog.shortDescription}</p>
-                <div>{blog.content}</div>
-                <div>{blog.tags}</div>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      
+<ul >
+{blogs.map((blogy)=>{
+  
+  return (
+      <Link href={`/blogs/${blogy.slug}`} >
+    <li key={blogy._id}
+     className="border border-gray-300 rounded-lg mt-4 p-4">
+<h3>{blogy.title}</h3>
+<h4>{blogy.shortDescription}</h4>
+<p>{blogy.content}</p>
+</li>
+</Link>
+
+  )
+})}
+ 
+</ul>
     </div>
   );
 }

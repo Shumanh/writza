@@ -62,6 +62,24 @@ finally {
     <div className="flex h-screen">
       <div className="border w-[32%] h-[52%] m-auto bg-neutral-900 rounded-lg shadow dark:border dark:border-gray-700">
         <div className="p-6">
+          {/* Back Button */}
+          <div className="mb-4">
+            <Link 
+              href="/" 
+              className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors duration-200"
+            >
+              <svg 
+                className="w-4 h-4 mr-2" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Home
+            </Link>
+          </div>
+          
           <h1 className="text-xl font-bold">Login to your account</h1>
           <p>Enter your email below to login to your account</p>
 
