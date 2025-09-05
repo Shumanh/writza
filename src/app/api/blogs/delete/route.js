@@ -1,13 +1,13 @@
 import { dbConnect } from "@/lib/db/mongodb";
 import { NextResponse } from "next/server";
-import { Cookies } from "@/lib/auth/cookies";
+import {getUserFromCookies} from '@/lib/auth/cookies'
 import Blog from "@/models/Blog";
 
 
 export async function DELETE(req){
     
-    const verifyUser = await Cookies();
-    if(!verifyUser)
+    const verifyUser = await getUserFromCookies();
+    if(verifyUser.error)
     return NextResponse.json({error: true , 
   message: "Unauthorized"} , {status:401})
 
@@ -22,13 +22,19 @@ if(!blogId) {
 
     await dbConnect();
 
-    const existingBlog = await Blog.findById(blogId);
+    const existingBlog = await Blog.findById(blogId).populate('author' , 'username');
     if (!existingBlog) {
         return NextResponse.json({ error: true , 
              message : "Blog not found" }, { status: 404 });
     }
 
-    if (existingBlog.author.toString() !== verifyUser.id) {
+
+console.log(existingBlog.author.toString())
+console.log(verifyUser.data.id)
+
+
+
+    if (existingBlog.author._id.toString() !== verifyUser.data.id) {
                 return NextResponse.json(
                     { error:true , 
                         message: "Forbidden: You can only delete your own blogs" }, 
