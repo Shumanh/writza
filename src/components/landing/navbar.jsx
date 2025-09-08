@@ -13,25 +13,25 @@ export default function Navbar() {
       
       <div className="flex  text-lg relative right-35 gap-10 items-center">
         <div className="flex  gap-10  ">
-          <button className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300 ">
+          {/* <button className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300 ">
             {" "}
             Our Story{" "}
-          </button>
-          <button className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
+          </button> */}
+          {/* <button className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
             {" "}
             Write{" "}
-          </button>
+          </button> */}
           <Link href="/chat" className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
             {" "}
             Chat{" "}
           </Link>
           <Link href="/auth/login" className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
             {" "}
-            Sign In{" "}
+           Login{" "}
           </Link>
         </div>
-        <Link href="/auth/signup" className=" border p-1 rounded-xl text-sky-300  hover:bg-sky-300 hover:text-black px-4">
-          Get Started
+        <Link href="blogs/view" className=" border p-1 rounded-xl text-sky-300  hover:bg-sky-300 hover:text-black px-4">
+          Explore Blogs
         </Link>
       </div>
     </nav>

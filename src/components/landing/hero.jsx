@@ -1,7 +1,8 @@
 export default function Hero() {
   return (
-    <section className="flex h-[80vh] items-center justify-between gap-8 px-6 pt-16 md:pt-20">
-      <div className="max-w-xl">
+    <section className="   w-full flex h-[80vh] items-center justify-between gap-8 px-6 pt-16 md:pt-20">
+      <div className="  
+      ">
         <div className="mb-6 inline-flex items-center gap-3">
           
           <span className="text-sm text-sky-300/80 trdacking-wide">Write. Share. Inspire.</span>
@@ -18,20 +19,16 @@ export default function Hero() {
 
         <div className="mt-8 flex items-center gap-4">
           <a
-            href="auth/signup"
+            href="blogs/view"
             className="px-5 py-3 rounded-xl bg-gradient-to-r from-sky-300 to-cyan-400 text-black font-medium hover:opacity-90 transition"
           >
-            Start Writing
+            Wanna Read ? Hop-in.
           </a>
           
         </div>
       </div>
 
-      <img
-        src="/writza-hero-illustration.svg"
-        alt="Writza premium hero illustration"
-        className="hidden md:block h-2/3 w-auto"
-      />
+      
     </section>
   );
 }

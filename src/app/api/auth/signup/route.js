@@ -17,7 +17,7 @@ export async function POST(req) {
           message : parsed.error.flatten().fieldErrors},   { status: 400 }
       );
     }
-const {username , email , password } = parsed.data;
+const {username , email , password , role } = parsed.data;
 
     await dbConnect();
 
@@ -38,7 +38,7 @@ const {username , email , password } = parsed.data;
       );
     }
 
-    const newUser = new User({ username, email, password});
+    const newUser = new User({ username, email, password , role});
     await newUser.save();
 
     return NextResponse.json({ error: false  , 

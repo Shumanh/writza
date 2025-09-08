@@ -16,7 +16,7 @@ async function getBlog(){
     const data = await response.json()
     
     if(response.ok){
-      setBlog(data.blog)
+      setBlog(data.data)
     }
     else{
       setError(data.message || "Failed to fetch the blogs")
@@ -50,7 +50,7 @@ if (loading){
     <div>
       <h1>{blog.title}</h1>
       <p>{blog.shortDescription}</p>
-      <div>{blog.content}</div>
+      <div dangerouslySetInnerHTML={{ __html: blog.content }} />
       <div>{blog.tags}</div>
 
 

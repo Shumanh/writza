@@ -20,10 +20,12 @@ export const UserformSchema = z.object({
     )
     .trim(),
   confirmPassword: z.string({ required_error: 'Please confirm your password' }),
+  role: z.enum(['admin', 'viewer']).optional().default('viewer') 
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
 })
+
 
 export const LoginFormSchema = z.object({
   email: z

@@ -22,15 +22,20 @@ if(!parsed.success){
 
 const { email , password} = parsed.data
 await dbConnect();
+const user = await User.findOne({email});
+if (!user) {
+  return NextResponse.json({
+    error: true, 
+    message: {email: ["Register your email at first..."]}
+  }, {status: 400});
+}
 
-  const user = await User.findOne({email});
-  if(!user){
-    return NextResponse.json(
-      {
-        error:true , 
-        message:{email:["Register your email at first..."]}}, 
-      {status:400})
-  };
+if (user.role !== 'admin') {
+  return NextResponse.json({
+    error: true, 
+    message: {email: ["Doesn't seem like you belong here..."]}
+  }, {status: 403});
+}
 
   let passwordCompare =  await bcrypt.compare(password, user.password);
 

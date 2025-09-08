@@ -30,9 +30,18 @@ const userSchema = new mongoose.Schema(
         "Password must contain uppercase, lowercase, number, special character and be at least 8 characters long",
       ],
     },
+role : {
+  type : String , 
+  enum : ["admin" , "viewer"] , 
+  required : true  ,
+  default : "viewer"
+}
+
   },
   { timestamps: true }
 );
+
+
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

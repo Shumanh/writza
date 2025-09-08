@@ -8,13 +8,14 @@ import User from "@/models/User";
 
 export async function GET(request) {
     try {
-        const user = await getUserFromCookies ();
-        if (user.error) {
-            return NextResponse.json(
-                { error: true, message: "User is unauthorized" },
-                { status: 401 }
-            );
-        }
+        // const user = await getUserFromCookies ();
+        // if (user.error) {
+        //     return NextResponse.json(
+        //         { error: true, message: "User is unauthorized" },
+        //         { status: 401 }
+        //     );
+        // }
+
 
         await dbConnect();
         
@@ -31,48 +32,18 @@ export async function GET(request) {
                 );
             }
 
-            const blogData = blog.toObject();
-
-          
-
-            const isOwner = blog.author._id.toString() === user.data.id;
-
-            console.log('Is owner:', isOwner);
-
-            const blogWithEditPermission = {
-                ...blogData, 
-                canEdit: isOwner , 
-                canDelete:isOwner     
-            };
 
             return NextResponse.json({
                 error: false,
-                blog: blogWithEditPermission
-            });
+               data : blog
+            } , {status : 200});
         } else {
  
             const allBlogs = await Blog.find().populate('author' , 'username');
-            const blogsWithEditPermissions = allBlogs.map(blog => {
-        
-                const blogData = blog.toObject();
-
-                
-
-                const isOwner = blog.author._id.toString() === user.data.id;
-
-           
-
-                return {
-                    ...blogData,     
-                    canEdit: isOwner ,  
-                    canDelete:isOwner
-                };
-            });
-
             return NextResponse.json({
                 error: false,
-                blogs: blogsWithEditPermissions
-            });
+                data : allBlogs
+            } , {status : 200});
         }
     } catch (error) {
         console.error('Blog fetch error:', error);
