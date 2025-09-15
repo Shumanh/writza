@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-import NovelEditor from "@/components/novel/NovelEditor";
-import InlineEditor from "@/components/novel/InlineEditor";
+
 
 
 export function Create() {
