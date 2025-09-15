@@ -3,31 +3,39 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-
-
+import UnifiedRichEditor from "./unified-rich-editor";
+import Menu from "../novel/taiwlind/ui/menu";
+import { defaultEditorContent } from "@/lib/novels/content";
+import TailwindAdvancedEditor from "../novel/taiwlind/advanced-editor";
+import { Button } from "../novel/taiwlind/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "../novel/taiwlind/ui/dialog";
+import { ScrollArea } from "../novel/taiwlind/ui/scroll-area";
+import { BookOpen, GithubIcon } from "lucide-react";
 
 export function Create() {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [titleHtml, setTitleHtml] = useState("");
+  const [titlePlain, setTitlePlain] = useState("");
   const [descriptionHtml, setDescriptionHtml] = useState("");
+  const [descriptionPlain, setDescriptionPlain] = useState("");
   const [contentHtml, setContentHtml] = useState("");
+  const [contentPlain, setContentPlain] = useState("");
   const [tagsHtml, setTagsHtml] = useState("");
+  const [tagsPlain, setTagsPlain] = useState("");
   const [contentChars, setContentChars] = useState(0);
   const router = useRouter();
 
   async function handleSubmit(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.target);
-
     const blogsData = {
-      title: titleHtml.replace(/<[^>]*>/g, "").trim() || "Untitled",
-      shortDescription: descriptionHtml.replace(/<[^>]*>/g, "").trim() || "No description",
+      title: titlePlain.trim() || "Untitled",
+      shortDescription: (descriptionPlain.trim() || "No description").slice(0, 150),
       content: contentHtml,
-      tags: tagsHtml.replace(/<[^>]*>/g, "").trim() || "",
+      tags: tagsPlain.trim() || "",
     };
 
     try {
@@ -44,11 +52,16 @@ export function Create() {
       if (data.error === false) {
         setMessage(data.message);
         setErrors("");
-        setTimeout(() => {
-      
-        }, 3000);
-        e.target.reset();
-    
+        setTitleHtml("");
+        setTitlePlain("");
+        setDescriptionHtml("");
+        setDescriptionPlain("");
+        setContentHtml("");
+        setContentPlain("");
+        setTagsHtml("");
+        setTagsPlain("");
+        setContentChars(0);
+        
         setTimeout(() => {
           router.push('/blogs/view')
         }, 2000);
@@ -64,134 +77,125 @@ export function Create() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Modern Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Writza</h1>
-              <span className="ml-3 px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
-                Draft
-              </span>
+    <div className="min-h-screen bg-white">
+      {/* Minimal Header - Just essentials */}
+      <header className="bg-white sticky top-0 z-50 border-b border-gray-100">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex justify-between items-center h-12">
+            <div className="flex items-center space-x-6">
+              <h1 className="text-lg font-semibold text-gray-900">Writza</h1>
+              <span className="text-sm text-green-600">Saved</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className={`text-sm font-medium ${contentChars < 100 ? "text-red-500" : "text-green-600"}`}>
-                {contentChars >= 100 ? "✓" : `${contentChars}/100 chars`}
-              </div>
+            <div className="flex items-center space-x-3">
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={loading || contentChars < 100}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Publishing...
-                  </>
-                ) : (
-                  "Publish Article"
-                )}
+                {loading ? "Publishing..." : "Publish"}
               </button>
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                S
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <form onSubmit={handleSubmit} className="p-8">
-            {/* Title Section */}
-            <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Article Title
-              </label>
-              <div className="text-3xl font-bold">
-                <InlineEditor
-                  placeholder="Enter your article title..."
-                  onChange={setTitleHtml}
-                  className="text-3xl font-bold border-none shadow-none"
-                />
-              </div>
-              {errors.title && (
-                <p className="mt-2 text-sm text-red-600">{errors.title[0]}</p>
-              )}
-            </div>
+      <main className="max-w-3xl mx-auto px-6 py-12">
+        <div className="relative">
+          {/* Seamless Title + Content Writing Flow */}
+          <div className="min-h-screen">
+            {/* Title Field - Seamlessly integrated */}
+            <input
+              type="text"
+              placeholder="Title"
+              value={titlePlain}
+              onChange={(e) => {
+                setTitlePlain(e.target.value);
+                setTitleHtml(`<p>${e.target.value}</p>`);
+                // Auto-populate description from content if available
+                if (!descriptionPlain && contentPlain.trim()) {
+                  const excerpt = contentPlain.substring(0, 150);
+                  setDescriptionPlain(excerpt);
+                  setDescriptionHtml(`<p>${excerpt}</p>`);
+                }
+              }}
+              className="w-full text-4xl font-bold text-gray-800 placeholder-gray-400 border-none outline-none bg-transparent resize-none mb-6"
+              style={{ fontFamily: 'inherit' }}
+              maxLength="50"
+            />
 
-            {/* Description Section */}
-            <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Short Description
-              </label>
-              <InlineEditor
-                placeholder="Write a brief description that summarizes your article..."
-                onChange={setDescriptionHtml}
-                className="text-lg"
+            {/* Short Description Field */}
+            <div className="mb-6">
+              <textarea
+                placeholder="Short description (one or two sentences)"
+                value={descriptionPlain}
+                onChange={(e) => {
+                  const v = e.target.value.slice(0, 150);
+                  setDescriptionPlain(v);
+                  setDescriptionHtml(`<p>${v}</p>`);
+                }}
+                maxLength={150}
+                rows={2}
+                className="w-full text-base text-gray-800 placeholder-gray-400 bg-transparent outline-none border border-gray-200 focus:border-gray-300 rounded-md p-3"
               />
+              <div className="mt-1 text-xs text-gray-500 text-right">{descriptionPlain.length}/150</div>
               {errors.shortDescription && (
-                <p className="mt-2 text-sm text-red-600">{errors.shortDescription[0]}</p>
+                <p className="mt-1 text-sm text-red-600">Short Description: {errors.shortDescription[0]}</p>
               )}
             </div>
 
-            {/* Content Section */}
-            <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Article Content
-              </label>
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <NovelEditor onChange={(html) => {
-                  setContentHtml(html);
-                  const plain = html.replace(/<[^>]*>/g, "");
-                  setContentChars(plain.trim().length);
-                }} />
-              </div>
-              <p className="mt-2 text-sm text-gray-500">
-                Use the rich text editor above. Type "/" for quick commands, drag & drop images, and format your content.
-              </p>
+            {/* Content Editor - Flows directly from title */}
+            <UnifiedRichEditor
+              fieldType="content"
+              placeholder="Tell your story..."
+              onChange={(html, plain, wordCount) => {
+                setContentHtml(html);
+                setContentPlain(plain);
+                setContentChars(plain.trim().length);
+                // Auto-populate description from content if title exists but description doesn't
+                if (titlePlain && !descriptionPlain && plain.trim()) {
+                  const excerpt = plain.substring(0, 150);
+                  setDescriptionPlain(excerpt);
+                  setDescriptionHtml(`<p>${excerpt}</p>`);
+                }
+              }}
+              minHeight="calc(100vh - 200px)"
+              showWordCount={false}
+              enableImages={true}
+              enableSlashCommands={true}
+              className="text-lg leading-relaxed text-gray-800 placeholder-gray-400 prose-headings:text-4xl prose-headings:font-bold"
+            />
+          </div>
+          
+          {/* Floating validation indicators - unobtrusive */}
+          {(errors.title || errors.content || errors.shortDescription) && (
+            <div className="fixed bottom-20 right-6 bg-red-50 border border-red-200 rounded-lg p-3 shadow-sm max-w-xs">
+              {errors.title && (
+                <p className="text-sm text-red-600 mb-1">Title: {errors.title[0]}</p>
+              )}
               {errors.content && (
-                <p className="mt-2 text-sm text-red-600">{errors.content[0]}</p>
+                <p className="text-sm text-red-600">Content: {errors.content[0]}</p>
+              )}
+              {errors.shortDescription && (
+                <p className="text-sm text-red-600 mt-1">Short Description: {errors.shortDescription[0]}</p>
               )}
             </div>
-
-            {/* Tags Section */}
-            <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Tags (Optional)
-              </label>
-              <InlineEditor
-                placeholder="Add tags to help readers find your article..."
-                onChange={setTagsHtml}
-              />
+          )}
+          
+          {/* Floating title status - unobtrusive */}
+          {titlePlain && (
+            <div className="fixed bottom-32 right-6 bg-gray-50 border border-gray-200 rounded-full px-3 py-1 text-xs text-gray-500 shadow-sm">
+              {titlePlain.length}/50 {titlePlain.length >= 7 ? '✓' : '(min 7)'}
             </div>
+          )}
+        </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-              <div className="flex items-center text-sm text-gray-500">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Your article will be saved automatically
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-                >
-                  Save as Draft
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading || contentChars < 100}
-                  className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                >
-                  {loading ? "Publishing..." : "Publish Article"}
-                </button>
-              </div>
-            </div>
-          </form>
+        {/* Character count indicator - bottom right */}
+        <div className="fixed bottom-6 right-6 bg-white border border-gray-200 rounded-full px-3 py-1 text-xs text-gray-500 shadow-sm">
+          {contentChars}/100 chars
         </div>
       </main>
 
@@ -234,5 +238,4 @@ export function Create() {
     </div>
   );
 }
-
 

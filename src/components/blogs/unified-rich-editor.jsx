@@ -1,0 +1,252 @@
+"use client";
+import { defaultEditorContent } from "@/lib/novels/content";
+import {
+  EditorCommand,
+  EditorCommandEmpty,
+  EditorCommandItem,
+  EditorCommandList,
+  EditorContent,
+  EditorRoot,
+  ImageResizer,
+  handleCommandNavigation,
+  handleImageDrop,
+  handleImagePaste,
+} from "novel";
+import { useEffect, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
+import { defaultExtensions } from "../novel/taiwlind/extensions";
+import { ColorSelector } from "../novel/taiwlind/selectors/color-selector";
+import { LinkSelector } from "../novel/taiwlind/selectors/link-selector";
+import { MathSelector } from "../novel/taiwlind/selectors/math-selector";
+import { NodeSelector } from "../novel/taiwlind/selectors/node-selector";
+import { Separator } from "../novel/taiwlind/ui/separator";
+
+import GenerativeMenuSwitch from "../novel/taiwlind/generative/generative-menu-switch";
+import { uploadFn } from "../novel/taiwlind/image-upload";
+import { TextButtons } from "../novel/taiwlind/selectors/text-buttons";
+import { slashCommand, suggestionItems } from "../novel/taiwlind/slash-command";
+
+import hljs from "highlight.js";
+
+const extensions = [...defaultExtensions, slashCommand];
+
+const UnifiedRichEditor = ({ 
+  onChange, 
+  placeholder = "Start typing...",
+  initialValue = "",
+  minHeight = "150px",
+  fieldType = "general", // 'title', 'description', 'tags', 'content', 'general'
+  showWordCount = true,
+  showSaveStatus = false,
+  enableImages = true,
+  enableSlashCommands = true,
+  className = ""
+}) => {
+  const [initialContent, setInitialContent] = useState(null);
+  const [saveStatus, setSaveStatus] = useState("Saved");
+  const [charsCount, setCharsCount] = useState(0);
+
+  const [openNode, setOpenNode] = useState(false);
+  const [openColor, setOpenColor] = useState(false);
+  const [openLink, setOpenLink] = useState(false);
+  const [openAI, setOpenAI] = useState(false);
+
+  //Apply Codeblock Highlighting on the HTML from editor.getHTML()
+  const highlightCodeblocks = (content) => {
+    const doc = new DOMParser().parseFromString(content, "text/html");
+    doc.querySelectorAll("pre code").forEach((el) => {
+      // @ts-expect-error - highlightElement method exists but not in types definition
+      // https://highlightjs.readthedocs.io/en/latest/api.html?highlight=highlightElement#highlightelement
+      hljs.highlightElement(el);
+    });
+    return new XMLSerializer().serializeToString(doc);
+  };
+
+  const debouncedUpdates = useDebouncedCallback(async (editor) => {
+    const json = editor.getJSON();
+    const html = highlightCodeblocks(editor.getHTML());
+    const plainText = editor.getText();
+    const wordsCount = editor.storage.characterCount.words();
+    
+    setCharsCount(wordsCount);
+    setSaveStatus("Saved");
+    
+    // Pass the content back to the parent form
+    if (onChange) {
+      onChange(html, plainText, wordsCount);
+    }
+  }, 300);
+
+  useEffect(() => {
+    // Set initial content based on initialValue or field type
+    if (initialValue && initialValue.trim()) {
+      try {
+        // Try to parse as JSON first (if it's editor JSON content)
+        const parsedContent = JSON.parse(initialValue);
+        setInitialContent(parsedContent);
+      } catch (e) {
+        // If not JSON, treat as HTML or plain text
+        setInitialContent(initialValue);
+      }
+    } else {
+      // For different field types, set appropriate empty content
+      switch (fieldType) {
+        case 'title':
+        case 'description':
+        case 'tags':
+        case 'content':
+          setInitialContent('<p></p>');
+          break;
+        default:
+          setInitialContent(defaultEditorContent);
+      }
+    }
+  }, [initialValue, fieldType]);
+
+  if (!initialContent) return null;
+
+  // Configure editor class based on field type and custom styling
+  const getEditorClass = () => {
+    const baseClass = "prose dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full";
+    
+    // If custom className is provided, use it instead of default styling
+    if (className && className.includes('text-')) {
+      return `${baseClass} ${className.replace(/border-none|shadow-none/g, '').trim()}`;
+    }
+    
+    switch (fieldType) {
+      case 'title':
+        return `${baseClass} prose-2xl font-bold`;
+      case 'description':
+        return `${baseClass} prose-lg`;
+      case 'tags':
+        return `${baseClass} prose-sm`;
+      case 'content':
+        // Make H1 headings match the title input: text-4xl font-bold
+        return `${baseClass} prose-lg prose-headings:text-4xl prose-headings:font-bold`;
+      default:
+        return `${baseClass} prose-lg`;
+    }
+  };
+
+  // Configure container class based on field type and custom className
+  const getContainerClass = () => {
+    // If custom className includes "border-none" or "shadow-none", use minimal styling
+    const isMinimalStyle = className.includes('border-none') || className.includes('shadow-none');
+    
+    if (isMinimalStyle) {
+      return "w-full bg-transparent";
+    }
+    
+    switch (fieldType) {
+      case 'title':
+        return "w-full border-muted bg-background rounded-lg border shadow-sm";
+      case 'description':
+        return "w-full border-muted bg-background rounded-lg border shadow-sm";
+      case 'tags':
+        return "w-full border-muted bg-background rounded-lg border shadow-sm";
+      case 'content':
+        return "w-full max-w-screen-lg border-muted bg-background sm:rounded-lg sm:border sm:shadow-lg";
+      default:
+        return "w-full border-muted bg-background rounded-lg border shadow-sm";
+    }
+  };
+
+  const shouldShowSlashCommands = enableSlashCommands;
+  const displayWordCount = showWordCount && charsCount > 0;
+  const displaySaveStatus = showSaveStatus;
+  const isMinimalStyle = className.includes('border-none') || className.includes('shadow-none');
+  const shouldShowToolbar = !isMinimalStyle && (fieldType === 'content' || fieldType === 'description');
+
+  return (
+    <div className={`relative w-full ${className}`}>
+      {(displayWordCount || displaySaveStatus) && (
+        <div className="flex absolute right-3 top-3 z-10 gap-2">
+          {displaySaveStatus && (
+            <div className="rounded-lg bg-accent px-2 py-1 text-sm text-muted-foreground">
+              {saveStatus}
+            </div>
+          )}
+          {displayWordCount && (
+            <div className="rounded-lg bg-accent px-2 py-1 text-sm text-muted-foreground">
+              {charsCount} Words
+            </div>
+          )}
+        </div>
+      )}
+      
+      <EditorRoot>
+        <EditorContent
+          initialContent={initialContent}
+          extensions={extensions}
+          className={`relative ${getContainerClass()}`}
+          style={{ minHeight }}
+          editorProps={{
+            handleDOMEvents: {
+              keydown: (_view, event) => {
+                if (shouldShowSlashCommands) {
+                  handleCommandNavigation(event);
+                }
+              },
+            },
+            handlePaste: enableImages ? 
+              (view, event) => handleImagePaste(view, event, uploadFn) : 
+              undefined,
+            handleDrop: enableImages ? 
+              (view, event, _slice, moved) => handleImageDrop(view, event, moved, uploadFn) : 
+              undefined,
+            attributes: {
+              class: getEditorClass(),
+              "data-placeholder": placeholder,
+              style: `min-height: ${minHeight}; padding: 1rem;`,
+            },
+          }}
+          onUpdate={({ editor }) => {
+            debouncedUpdates(editor);
+            setSaveStatus("Unsaved");
+          }}
+          slotAfter={enableImages ? <ImageResizer /> : null}
+        >
+          {shouldShowSlashCommands && (
+            <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border border-muted bg-background px-1 py-2 shadow-md transition-all">
+              <EditorCommandEmpty className="px-2 text-muted-foreground">No results</EditorCommandEmpty>
+              <EditorCommandList>
+                {suggestionItems.map((item) => (
+                  <EditorCommandItem
+                    value={item.title}
+                    onCommand={(val) => item.command(val)}
+                    className="flex w-full items-center space-x-2 rounded-md px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-accent"
+                    key={item.title}
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md border border-muted bg-background">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <p className="font-medium">{item.title}</p>
+                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                    </div>
+                  </EditorCommandItem>
+                ))}
+              </EditorCommandList>
+            </EditorCommand>
+          )}
+
+          <GenerativeMenuSwitch open={openAI} onOpenChange={setOpenAI}>
+            <Separator orientation="vertical" />
+            <NodeSelector open={openNode} onOpenChange={setOpenNode} />
+            <Separator orientation="vertical" />
+            <LinkSelector open={openLink} onOpenChange={setOpenLink} />
+            <Separator orientation="vertical" />
+            <MathSelector />
+            <Separator orientation="vertical" />
+            <TextButtons />
+            <Separator orientation="vertical" />
+            <ColorSelector open={openColor} onOpenChange={setOpenColor} />
+          </GenerativeMenuSwitch>
+        </EditorContent>
+      </EditorRoot>
+    </div>
+  );
+};
+
+export default UnifiedRichEditor;
