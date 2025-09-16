@@ -1,57 +1,15 @@
-// import Hero from "@/components/landing/hero";
-// import Navbar from "@/components/landing/navbar";
+import Hero from "@/components/landing/hero";
+import Navbar from "@/components/landing/navbar";
 
-// export default function Home() {
-//   return (
-//     <>
-//     <Navbar/>
-//       <div className="max-w-7xl flex m-auto">
-//         <Hero />
-//       </div>
-      
-//     </>
-//   );
-  
-// }
-
-import TailwindAdvancedEditor from "@/components/novel/taiwlind/advanced-editor";
-import { Button } from "@/components/novel/taiwlind/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/novel/taiwlind/ui/dialog";
-import Menu from "@/components/novel/taiwlind/ui/menu";
-import { ScrollArea } from "@/components/novel/taiwlind/ui/scroll-area";
-import { BookOpen, GithubIcon } from "lucide-react";
-import Link from "next/link";
-
-export default function Page() {
+export default function Home() {
   return (
-    <div className="flex h-screen flex-col items-center">
-      <div className="flex w-full max-w-screen-lg items-center gap-2 px-4 py-3 flex-shrink-0">
-        <Button size="icon" variant="outline">
-          <a href="https://github.com/Shumanh/mini.projects/tree/main/memorie" target="_blank" rel="noreferrer">
-            <GithubIcon />
-          </a>
-        </Button>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="ml gap-2">
-              <BookOpen className="h-4 w-4" />
-              Usage in dialog
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="flex max-w-3xl h-[calc(100vh-24px)]">
-            <ScrollArea className="max-h-screen">
-              <TailwindAdvancedEditor />
-            </ScrollArea>
-          </DialogContent>
-        </Dialog>
-        <Link href="/docs" className="ml-auto">
-          <Button variant="ghost">Memoriee</Button>
-        </Link>
-        <Menu />
+    <>
+      <Navbar/>
+      <div className="max-w-7xl flex m-auto px-6">
+        <Hero />
       </div>
-      <div className="flex-1 w-full max-w-screen-lg px-4 min-h-0">
-        <TailwindAdvancedEditor />
-      </div>
-    </div>
+    </>
   );
+  
 }
+

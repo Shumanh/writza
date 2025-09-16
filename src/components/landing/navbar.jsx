@@ -2,35 +2,21 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <nav className=" text-white flex items-center justify-between relative top-5  ">
+    <nav className="text-primary flex items-center justify-between px-6 py-6 w-full max-w-7xl mx-auto">
       <a href="/">
-<img
-        src="/writza-wordmark.svg"
-        alt="logo"
-        className="w-50 h-15  relative left-20 items-center "
-      />
-</a>
+        <div className="text-xl font-bold text-primary">OwnTheWeb</div>
+      </a>
       
-      <div className="flex  text-lg relative right-35 gap-10 items-center">
-        <div className="flex  gap-10  ">
-          {/* <button className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300 ">
-            {" "}
-            Our Story{" "}
-          </button> */}
-          {/* <button className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
-            {" "}
-            Write{" "}
-          </button> */}
-          <Link href="/chat" className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
-            {" "}
-            Chat{" "}
+      <div className="flex text-base gap-8 items-center">
+        <div className="flex gap-8">
+          <Link href="/chat" className="text-primary/80 hover:text-primary transition-colors font-medium">
+     Chat
           </Link>
-          <Link href="/auth/login" className="hover:text-sky-300 hover:border-b-2 hover:border-sky-300">
-            {" "}
-           Login{" "}
+          <Link href="/auth/login" className="text-primary/80 hover:text-primary transition-colors font-medium">
+            Login
           </Link>
         </div>
-        <Link href="blogs/view" className=" border p-1 rounded-xl text-sky-300  hover:bg-sky-300 hover:text-black px-4">
+        <Link href="/blogs/view" className="bg-primary text-white rounded-lg px-5 py-2.5 hover:bg-primary/90 transition-colors shadow-sm font-medium">
           Explore Blogs
         </Link>
       </div>

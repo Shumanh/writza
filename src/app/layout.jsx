@@ -52,12 +52,12 @@ import "@/styles/prosemirror.css";
 // import "katex/dist/katex.min.css"; // Removed to avoid CSS ESM loader error
 
 import Providers from "@/app/providers";
-import { cal, inter } from "@/styles/fonts";
+import { playfair, montserrat } from "@/styles/fonts";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${cal.variable}`} suppressHydrationWarning>
-      <body className="font-default">
+    <html lang="en" className={`${montserrat.variable} ${playfair.variable}`} suppressHydrationWarning>
+      <body className="font-default bg-white">
         <Providers>{children}</Providers>
       </body>
     </html>
