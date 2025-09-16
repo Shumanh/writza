@@ -1,8 +1,8 @@
 import { UpdateBlogForm } from "@/components/blogs/update";
 import { AdminProtection } from "@/components/auth/admin-protection";
 
-export default async function UpdateBlogPage({ params }) {
-  const { id } =await params;
+export default function UpdateBlogPage({ params }) {
+  const { id } = params;
   return (
     <AdminProtection>
       <div>

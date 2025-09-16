@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogTrigger } from "../novel/taiwlind/ui/dialo
 import { ScrollArea } from "../novel/taiwlind/ui/scroll-area";
 import { BookOpen, GithubIcon } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
+import TagsModal from "@/components/ui/TagsModal";
 
 export default function Create() {
   const [errors, setErrors] = useState({});
@@ -28,6 +29,8 @@ export default function Create() {
   const [tagsPlain, setTagsPlain] = useState("");
   const [contentChars, setContentChars] = useState(0);
   const [saveStatus, setSaveStatus] = useState("Saved");
+  const [tagsModalOpen, setTagsModalOpen] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const router = useRouter();
   
   // Load saved content when component mounts
@@ -59,15 +62,13 @@ export default function Create() {
     setDraftLoaded(true);
   }, []);
 
-  async function handleSubmit(e) {
-    if (e) e.preventDefault();
-    setLoading(true);
-
+  async function submitWithTags(finalTags) {
+    setPublishing(true);
     const blogsData = {
       title: titlePlain.trim() || "Untitled",
       shortDescription: (descriptionPlain.trim() || "No description").slice(0, 150),
       content: contentHtml,
-      tags: tagsPlain.trim() || "",
+      tags: (finalTags ?? tagsPlain).trim() || "",
     };
 
     try {
@@ -102,8 +103,9 @@ export default function Create() {
         window.localStorage.removeItem("blog-tags");
         
         setTimeout(() => {
+          setTagsModalOpen(false);
           router.push('/blogs/view')
-        }, 2000);
+        }, 1000);
       } else {
         setErrors(data.message);
       }
@@ -111,8 +113,15 @@ export default function Create() {
       console.log(error);
       setErrors({ global: "An unexpected error occurred" });
     } finally {
+      setPublishing(false);
       setLoading(false);
     }
+  }
+
+  function openTagsModalBeforePublish(e) {
+    if (e) e.preventDefault();
+    // open modal; user confirms with tags -> submitWithTags
+    setTagsModalOpen(true);
   }
 
   return (
@@ -128,11 +137,11 @@ export default function Create() {
             <div className="flex items-center space-x-3">
               <button
                 type="button"
-                onClick={handleSubmit}
+                onClick={openTagsModalBeforePublish}
                 disabled={loading || contentChars < 100}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Publishing..." : "Publish"}
+                {publishing ? "Publishing..." : "Publish"}
               </button>
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
                 S
@@ -269,6 +278,15 @@ export default function Create() {
           {contentChars}/100 chars
         </div>
       </main>
+
+      {/* Tags Modal */}
+      <TagsModal
+        open={tagsModalOpen}
+        initialTags={tagsPlain}
+        loading={publishing}
+        onConfirm={(val) => submitWithTags(val)}
+        onCancel={() => setTagsModalOpen(false)}
+      />
 
       {/* Toast Notifications */}
       {errors.global && (

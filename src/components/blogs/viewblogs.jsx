@@ -261,19 +261,31 @@ export function View() {
                           })()}
                         </span>
                         
-                        {/* Tags in Medium style */}
-                        {blog.tags && (
-                          <span className="text-gray-500">
-                            {(() => {
-                              const t = blog.tags;
-                              if (Array.isArray(t)) return t[0]; // Just show first tag Medium-style
-                              if (typeof t === 'string') return t.split(',')[0].trim();
-                              if (Array.isArray(t?.items)) return t.items[0];
-                              if (t && typeof t === 'object') return t.name || '';
-                              return '';
-                            })()}
-                          </span>
-                        )}
+                        {/* Tags */}
+                        {(() => {
+                          const t = blog.tags;
+                          const tagsList = Array.isArray(t)
+                            ? t.filter(Boolean).map(String)
+                            : typeof t === 'string'
+                              ? t.split(',').map(s => s.trim()).filter(Boolean)
+                              : Array.isArray(t?.items)
+                                ? t.items.filter(Boolean).map(String)
+                                : (t && typeof t === 'object' && t.name)
+                                  ? [String(t.name)]
+                                  : [];
+                          return tagsList.length ? (
+                            <div className="flex flex-wrap items-center gap-2">
+                              {tagsList.slice(0, 3).map((tag, idx) => (
+                                <span
+                                  key={`${blog._id}-tag-${idx}`}
+                                  className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          ) : null;
+                        })()}
                         
                         {/* Stats */}
                         {typeof blog.views === 'number' && (
