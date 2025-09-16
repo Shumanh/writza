@@ -81,7 +81,7 @@ if (loading){
         )}
 
         {/* Title */}
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-gray-900 mt-0">
+        <h1 className="text-4xl font-bold tracking-tight leading-tight text-gray-900 mt-0 font-title">
           {blog.title}
         </h1>
         {subtitle && (
@@ -126,7 +126,7 @@ if (loading){
       )}
 
       {/* Content */}
-      <main className="prose prose-lg prose-gray max-w-3xl mx-auto px-6 py-6 mt-4">
+      <main className="prose prose-gray max-w-3xl mx-auto px-6 py-6 mt-4 text-gray-800 font-default prose-headings:font-title prose-headings:text-gray-900 prose-p:leading-relaxed prose-li:leading-relaxed prose-img:rounded-lg prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl">
         <div dangerouslySetInnerHTML={{ __html: blog.content }} />
         {blog.tags && (
           <div className="mt-8 text-sm text-gray-600">

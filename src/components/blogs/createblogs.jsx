@@ -23,6 +23,7 @@ export default function Create() {
   const [descriptionPlain, setDescriptionPlain] = useState("");
   const [contentHtml, setContentHtml] = useState("");
   const [contentPlain, setContentPlain] = useState("");
+  const [draftLoaded, setDraftLoaded] = useState(false);
   const [tagsHtml, setTagsHtml] = useState("");
   const [tagsPlain, setTagsPlain] = useState("");
   const [contentChars, setContentChars] = useState(0);
@@ -51,6 +52,11 @@ export default function Create() {
     } catch (error) {
       console.error("Error loading saved blog content:", error);
     }
+  }, []);
+
+  // Mark draft as loaded once localStorage read attempt is done
+  useEffect(() => {
+    setDraftLoaded(true);
   }, []);
 
   async function handleSubmit(e) {
@@ -116,7 +122,7 @@ export default function Create() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex justify-between items-center h-12">
             <div className="flex items-center space-x-6">
-              <h1 className="text-lg font-semibold text-gray-900">Writza</h1>
+              <h1 className="text-lg font-semibold text-gray-900">OwnTheWeb</h1>
               <span className="text-sm text-green-600">{saveStatus}</span>
             </div>
             <div className="flex items-center space-x-3">
@@ -165,7 +171,7 @@ export default function Create() {
                 // Debounced save status update
                 setTimeout(() => setSaveStatus("Saved"), 500);
               }}
-              className="w-full text-4xl font-bold text-gray-800 placeholder-gray-400 border-none outline-none bg-transparent resize-none mb-5 flex-shrink-0"
+              className="w-full text-4xl text-gray-900 placeholder-gray-400 border-none outline-none bg-transparent resize-none mb-5 flex-shrink-0 leading-[1.1111111] tracking-tight font-title"
               style={{ fontFamily: 'inherit' }}
               maxLength="50"
             />
@@ -198,10 +204,12 @@ export default function Create() {
 
             {/* Content Editor - Flows directly from title */}
             <div className="flex-1 min-h-0">
-              <UnifiedRichEditor
-                fieldType="content"
-                placeholder="Tell your story..."
-                onChange={(html, plain, wordCount) => {
+              {draftLoaded && (
+                <UnifiedRichEditor
+                  fieldType="content"
+                  placeholder="Tell your story..."
+                  initialValue={contentHtml || '<p></p>'}
+                  onChange={(html, plain, wordCount) => {
                   setContentHtml(html);
                   setContentPlain(plain);
                   setContentChars(plain.trim().length);
@@ -229,6 +237,7 @@ export default function Create() {
                 className="border-none shadow-none text-lg leading-relaxed text-gray-800 placeholder-gray-400 prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-headings:font-bold h-full"
                 padding="0.5rem"
               />
+              )}
             </div>
           </div>
           

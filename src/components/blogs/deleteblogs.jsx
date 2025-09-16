@@ -1,15 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export function DeleteBlogs({ id }) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(true); // open by default on delete page
   const router = useRouter();
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this blog?")) return; 
-
+  const handleConfirm = async () => {
     setLoading(true);
     setMessage("");
 
@@ -22,8 +22,8 @@ export function DeleteBlogs({ id }) {
 
       if (response.ok) {
         setMessage("Blog deleted successfully!");
-
-        setTimeout(() => router.push("/blogs/my-blogs"), 2000); 
+        // Redirect to view blogs after short delay
+        setTimeout(() => router.push("/blogs/view"), 900);
       } else {
         setMessage(data.message || "Failed to delete blog");
       }
@@ -35,24 +35,29 @@ export function DeleteBlogs({ id }) {
     }
   };
 
+  const handleCancel = () => {
+    setOpen(false);
+    router.back();
+  };
+
   return (
-    <div>
-      <p>Are you sure you want to delete this blog?</p>
-      <button
-        onClick={handleDelete}
-        disabled={loading}
-        style={{
-          backgroundColor: "#dc3545",
-          color: "white",
-          padding: "0.5rem 1rem",
-          border: "none",
-          borderRadius: "4px",
-          cursor: loading ? "not-allowed" : "pointer",
-        }}
-      >
-        {loading ? "Deleting..." : "Confirm Delete"}
-      </button>
-      {message && <p style={{ marginTop: "1rem" }}>{message}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <ConfirmModal
+        open={open}
+        title="Delete this blog?"
+        description="This action cannot be undone. The blog will be permanently removed."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        loading={loading}
+        confirmButtonClass="bg-red-600 hover:bg-red-700 text-white"
+      />
+
+      {/* Fallback message area */}
+      {message && (
+        <div className="mt-4 text-center text-sm text-gray-600">{message}</div>
+      )}
     </div>
   );
 }

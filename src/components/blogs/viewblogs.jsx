@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Star, Eye, MessageSquare, Bookmark, MoreHorizontal, Search, Bell } from "lucide-react";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export function View() {
   const [errors, setErrors] = useState("");
@@ -11,6 +13,40 @@ export function View() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [menuOpenId, setMenuOpenId] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
+
+  function toggleMenu(id) {
+    setMenuOpenId((prev) => (prev === id ? null : id));
+  }
+
+  function openDeleteModal(id) {
+    setMenuOpenId(null);
+    setConfirmId(id);
+  }
+
+  async function confirmDelete() {
+    if (!confirmId) return;
+    try {
+      setDeleting(true);
+      const res = await fetch(`/api/blogs/delete?id=${confirmId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        // remove locally
+        setBlogs((prev) => prev.filter((b) => b._id !== confirmId));
+        setConfirmId(null);
+      } else {
+        alert(data.message || "Failed to delete blog");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("An error occurred while deleting the blog");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   useEffect(() => {
     async function checkAdminStatus() {
@@ -73,7 +109,7 @@ export function View() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-6">
               <Link href="/" className="text-xl font-bold text-gray-900">
-                Writza
+                OwnTheWeb
               </Link>
               {isAdmin && (
                 <nav className="hidden md:flex items-center space-x-6">
@@ -254,22 +290,38 @@ export function View() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 relative">
                         <button className="text-gray-400 hover:text-gray-600" aria-label="Bookmark">
                           <Bookmark className="h-5 w-5" />
                         </button>
-                        <button className="text-gray-400 hover:text-gray-600" aria-label="More">
-                          <MoreHorizontal className="h-5 w-5" />
-                        </button>
                         {isAdmin && (
-                          <div className="flex items-center gap-2 ml-2">
-                            <Link href={`/blogs/update/${blog._id}`} className="text-gray-600 hover:text-gray-900 text-sm">
-                              Edit
-                            </Link>
-                            <Link href={`/blogs/delete/${blog._id}`} className="text-gray-600 hover:text-gray-900 text-sm">
-                              Delete
-                            </Link>
-                          </div>
+                          <>
+                            <button
+                              className="text-gray-400 hover:text-gray-600"
+                              aria-label="More"
+                              onClick={() => toggleMenu(blog._id)}
+                            >
+                              <MoreHorizontal className="h-5 w-5" />
+                            </button>
+                            {menuOpenId === blog._id && (
+                              <div className="absolute right-0 top-8 z-10 w-36 rounded-md border border-gray-200 bg-white shadow-md py-1">
+                                <Link
+                                  href={`/blogs/update/${blog._id}`}
+                                  className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                  onClick={() => setMenuOpenId(null)}
+                                >
+                                  Edit
+                                </Link>
+                                <button
+                                  type="button"
+                                  className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                  onClick={() => openDeleteModal(blog._id)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -282,6 +334,19 @@ export function View() {
           </div>
         )}
       </main>
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        open={!!confirmId}
+        title="Delete this blog?"
+        description="This action cannot be undone. The blog will be permanently removed."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmId(null)}
+        loading={deleting}
+        confirmButtonClass="bg-red-600 hover:bg-red-700 text-white"
+      />
     </div>
   );
 };

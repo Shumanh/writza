@@ -7,10 +7,7 @@ export default function DeleteBlogPage({ params }) {
 
   return (
     <AdminProtection>
-      <div>
-        <h1>Delete Blog</h1>
-        <DeleteBlogs id={id} />
-      </div>
+      <DeleteBlogs id={id} />
     </AdminProtection>
   );
 }
