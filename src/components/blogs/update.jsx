@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useDebouncedCallback } from "use-debounce";
 
 export function UpdateBlogForm({ id }) {
   const [blog, setBlog] = useState(null);
@@ -10,6 +11,7 @@ export function UpdateBlogForm({ id }) {
   const [updating, setUpdating] = useState(false);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+  const [saveStatus, setSaveStatus] = useState("Saved");
   const router = useRouter();
 
   useEffect(() => {
@@ -20,6 +22,23 @@ export function UpdateBlogForm({ id }) {
 
         if (response.ok) {
           setBlog(data.blog);
+          
+          // Check for saved draft in localStorage
+          const savedTitle = window.localStorage.getItem(`blog-update-title-${id}`);
+          const savedShortDescription = window.localStorage.getItem(`blog-update-shortDescription-${id}`);
+          const savedContent = window.localStorage.getItem(`blog-update-content-${id}`);
+          const savedTags = window.localStorage.getItem(`blog-update-tags-${id}`);
+          
+          // If there's saved content, update the blog object with it
+          if (savedTitle || savedShortDescription || savedContent || savedTags) {
+            setBlog(prev => ({
+              ...prev,
+              title: savedTitle || prev.title,
+              shortDescription: savedShortDescription || prev.shortDescription,
+              content: savedContent || prev.content,
+              tags: savedTags || prev.tags
+            }));
+          }
         } else {
           setErrors({ general: data.message || "Failed to fetch blog" });
         }
@@ -63,6 +82,13 @@ export function UpdateBlogForm({ id }) {
 
       if (response.ok) {
         setMessage("Blog updated successfully!");
+        
+        // Clear localStorage after successful submission
+        window.localStorage.removeItem(`blog-update-title-${id}`);
+        window.localStorage.removeItem(`blog-update-shortDescription-${id}`);
+        window.localStorage.removeItem(`blog-update-content-${id}`);
+        window.localStorage.removeItem(`blog-update-tags-${id}`);
+        
         setTimeout(() => {
           router.push("/blogs/view");
         }, 2000);
@@ -110,8 +136,9 @@ export function UpdateBlogForm({ id }) {
 
   return (
     <div>
-      <div style={{ marginBottom: "2rem" }}>
+      <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link href="/blogs/view">← Back to Blogs</Link>
+        <span style={{ color: "#28a745" }}>{saveStatus}</span>
       </div>
 
       <form
@@ -134,6 +161,12 @@ export function UpdateBlogForm({ id }) {
             name="title"
             defaultValue={blog.title}
             placeholder="Enter your Title"
+            onChange={(e) => {
+              const value = e.target.value;
+              setSaveStatus("Unsaved");
+              window.localStorage.setItem(`blog-update-title-${id}`, value);
+              setTimeout(() => setSaveStatus("Saved"), 500);
+            }}
             style={{
               width: "100%",
               padding: "0.75rem",
@@ -154,6 +187,12 @@ export function UpdateBlogForm({ id }) {
             name="shortDescription"
             defaultValue={blog.shortDescription}
             placeholder="Describe in short"
+            onChange={(e) => {
+              const value = e.target.value;
+              setSaveStatus("Unsaved");
+              window.localStorage.setItem(`blog-update-shortDescription-${id}`, value);
+              setTimeout(() => setSaveStatus("Saved"), 500);
+            }}
             style={{
               width: "100%",
               padding: "0.75rem",
@@ -174,6 +213,12 @@ export function UpdateBlogForm({ id }) {
             defaultValue={blog.content}
             placeholder="Content"
             rows={10}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSaveStatus("Unsaved");
+              window.localStorage.setItem(`blog-update-content-${id}`, value);
+              setTimeout(() => setSaveStatus("Saved"), 500);
+            }}
             style={{
               width: "100%",
               padding: "0.75rem",
@@ -195,6 +240,12 @@ export function UpdateBlogForm({ id }) {
             name="tags"
             defaultValue={blog.tags}
             placeholder="Tags (comma separated)"
+            onChange={(e) => {
+              const value = e.target.value;
+              setSaveStatus("Unsaved");
+              window.localStorage.setItem(`blog-update-tags-${id}`, value);
+              setTimeout(() => setSaveStatus("Saved"), 500);
+            }}
             style={{
               width: "100%",
               padding: "0.75rem",

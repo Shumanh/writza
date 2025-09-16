@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import UnifiedRichEditor from "./unified-rich-editor";
 import Menu from "../novel/taiwlind/ui/menu";
@@ -11,6 +11,7 @@ import { Button } from "../novel/taiwlind/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "../novel/taiwlind/ui/dialog";
 import { ScrollArea } from "../novel/taiwlind/ui/scroll-area";
 import { BookOpen, GithubIcon } from "lucide-react";
+import { useDebouncedCallback } from "use-debounce";
 
 export default function Create() {
   const [errors, setErrors] = useState({});
@@ -25,7 +26,32 @@ export default function Create() {
   const [tagsHtml, setTagsHtml] = useState("");
   const [tagsPlain, setTagsPlain] = useState("");
   const [contentChars, setContentChars] = useState(0);
+  const [saveStatus, setSaveStatus] = useState("Saved");
   const router = useRouter();
+  
+  // Load saved content when component mounts
+  useEffect(() => {
+    try {
+      const savedTitle = window.localStorage.getItem("blog-title");
+      const savedDescription = window.localStorage.getItem("blog-description");
+      const savedContent = window.localStorage.getItem("blog-content");
+      const savedContentHtml = window.localStorage.getItem("blog-content-html");
+      const savedTags = window.localStorage.getItem("blog-tags");
+      
+      if (savedTitle) setTitlePlain(savedTitle);
+      if (savedDescription) setDescriptionPlain(savedDescription);
+      if (savedContent) setContentPlain(savedContent);
+      if (savedContentHtml) setContentHtml(savedContentHtml);
+      if (savedTags) setTagsPlain(savedTags);
+      
+      // Update derived values
+      if (savedTitle) setTitleHtml(`<p>${savedTitle}</p>`);
+      if (savedDescription) setDescriptionHtml(`<p>${savedDescription}</p>`);
+      if (savedContent) setContentChars(savedContent.trim().length);
+    } catch (error) {
+      console.error("Error loading saved blog content:", error);
+    }
+  }, []);
 
   async function handleSubmit(e) {
     if (e) e.preventDefault();
@@ -62,6 +88,13 @@ export default function Create() {
         setTagsPlain("");
         setContentChars(0);
         
+        // Clear localStorage after successful submission
+        window.localStorage.removeItem("blog-title");
+        window.localStorage.removeItem("blog-description");
+        window.localStorage.removeItem("blog-content");
+        window.localStorage.removeItem("blog-content-html");
+        window.localStorage.removeItem("blog-tags");
+        
         setTimeout(() => {
           router.push('/blogs/view')
         }, 2000);
@@ -84,7 +117,7 @@ export default function Create() {
           <div className="flex justify-between items-center h-12">
             <div className="flex items-center space-x-6">
               <h1 className="text-lg font-semibold text-gray-900">Writza</h1>
-              <span className="text-sm text-green-600">Saved</span>
+              <span className="text-sm text-green-600">{saveStatus}</span>
             </div>
             <div className="flex items-center space-x-3">
               <button
@@ -113,14 +146,24 @@ export default function Create() {
               placeholder="Title"
               value={titlePlain}
               onChange={(e) => {
-                setTitlePlain(e.target.value);
-                setTitleHtml(`<p>${e.target.value}</p>`);
+                const value = e.target.value;
+                setTitlePlain(value);
+                setTitleHtml(`<p>${value}</p>`);
+                setSaveStatus("Unsaved");
+                
+                // Save to localStorage
+                window.localStorage.setItem("blog-title", value);
+                
                 // Auto-populate description from content if available
                 if (!descriptionPlain && contentPlain.trim()) {
                   const excerpt = contentPlain.substring(0, 150);
                   setDescriptionPlain(excerpt);
                   setDescriptionHtml(`<p>${excerpt}</p>`);
+                  window.localStorage.setItem("blog-description", excerpt);
                 }
+                
+                // Debounced save status update
+                setTimeout(() => setSaveStatus("Saved"), 500);
               }}
               className="w-full text-4xl font-bold text-gray-800 placeholder-gray-400 border-none outline-none bg-transparent resize-none mb-5 flex-shrink-0"
               style={{ fontFamily: 'inherit' }}
@@ -136,6 +179,13 @@ export default function Create() {
                   const v = e.target.value.slice(0, 150);
                   setDescriptionPlain(v);
                   setDescriptionHtml(`<p>${v}</p>`);
+                  setSaveStatus("Unsaved");
+                  
+                  // Save to localStorage
+                  window.localStorage.setItem("blog-description", v);
+                  
+                  // Debounced save status update
+                  setTimeout(() => setSaveStatus("Saved"), 500);
                 }}
                 maxLength={150}
                 className="w-full text-base text-gray-800 placeholder-gray-400 bg-transparent outline-none border-none focus:outline-none focus:ring-0 short-description-textarea"
@@ -155,12 +205,22 @@ export default function Create() {
                   setContentHtml(html);
                   setContentPlain(plain);
                   setContentChars(plain.trim().length);
+                  setSaveStatus("Unsaved");
+                  
+                  // Save to localStorage
+                  window.localStorage.setItem("blog-content", plain);
+                  window.localStorage.setItem("blog-content-html", html);
+                  
                   // Auto-populate description from content if title exists but description doesn't
                   if (titlePlain && !descriptionPlain && plain.trim()) {
                     const excerpt = plain.substring(0, 150);
                     setDescriptionPlain(excerpt);
                     setDescriptionHtml(`<p>${excerpt}</p>`);
+                    window.localStorage.setItem("blog-description", excerpt);
                   }
+                  
+                  // Debounced save status update
+                  setTimeout(() => setSaveStatus("Saved"), 500);
                 }}
                 minHeight="100%"
                 showWordCount={false}

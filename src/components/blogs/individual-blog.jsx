@@ -67,7 +67,7 @@ if (loading){
 
   return (
     <article className="bg-white">
-      <header className="max-w-3xl mx-auto px-6 pt-10 md:pt-12 space-y-3">
+      <header className="max-w-3xl mx-auto px-6 pt-8 md:pt-10 space-y-2">
         {/* Category badge */}
         {categoryName && (
           <div className="inline-flex items-center gap-2">
@@ -81,11 +81,11 @@ if (loading){
         )}
 
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-gray-900 mt-0">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-gray-900 mt-0">
           {blog.title}
         </h1>
         {subtitle && (
-          <p className="text-xl text-gray-600">{subtitle}</p>
+          <p className="text-lg text-gray-600 mt-1">{subtitle}</p>
         )}
 
         {/* Author and meta */}

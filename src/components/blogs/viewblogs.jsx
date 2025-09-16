@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Eye, MessageSquare, Bookmark, MoreHorizontal } from "lucide-react";
+import { Star, Eye, MessageSquare, Bookmark, MoreHorizontal, Search, Bell } from "lucide-react";
 
 export function View() {
   const [errors, setErrors] = useState("");
@@ -66,61 +66,69 @@ export function View() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header with Navigation - Only show if authenticated */}
-      {isAdmin && (
-        <header className="bg-white sticky top-0 z-50 border-b border-gray-100">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-8">
-                <Link href="/" className="text-xl font-bold text-gray-900">
-                  Writza
-                </Link>
+    <div className="min-h-screen bg-white font-default">
+      {/* Medium-style Header */}
+      <header className="bg-white sticky top-0 z-50 border-b border-gray-200">
+        <div className="max-w-[1192px] mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-6">
+              <Link href="/" className="text-xl font-bold text-gray-900">
+                Writza
+              </Link>
+              {isAdmin && (
                 <nav className="hidden md:flex items-center space-x-6">
                   <Link
                     href="/blogs/view"
-                    className="text-gray-600 hover:text-gray-900 font-medium border-b-2 border-blue-500 pb-1"
+                    className="text-gray-600 hover:text-gray-900 text-sm"
                   >
                     View Blogs
                   </Link>
                   <Link
                     href="/blogs/create"
-                    className="text-gray-600 hover:text-gray-900 font-medium"
+                    className="text-gray-600 hover:text-gray-900 text-sm"
                   >
                     Create Blog
                   </Link>
                 </nav>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Link
-                  href="/blogs/create"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                >
-                  New Post
-                </Link>
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                  A
-                </div>
+              )}
+            </div>
+            <div className="flex items-center space-x-5">
+              <button className="text-gray-600 hover:text-gray-900">
+                <Search className="h-5 w-5" />
+              </button>
+              {isAdmin && (
+                <>
+                  <button className="text-gray-600 hover:text-gray-900">
+                    <Bell className="h-5 w-5" />
+                  </button>
+                  <Link
+                    href="/blogs/create"
+                    className="border border-gray-900 text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full text-sm transition-colors"
+                  >
+                    Write
+                  </Link>
+                </>
+              )}
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                S
               </div>
             </div>
           </div>
-        </header>
-      )}
+        </div>
+      </header>
 
-      {/* Main Content */}
-      <main className={`max-w-4xl mx-auto px-6 ${isAdmin ? 'py-8' : 'py-16'}`}>
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Blog Posts</h1>
-          <p className="text-gray-600">
-            {isAdmin
-              ? "Manage and view all your blog posts"
-              : "Discover our latest articles and insights"
-            }
-          </p>
+      {/* Main Content - Medium Style */}
+      <main className="max-w-[900px] mx-auto px-4 py-10">
+        {/* Simplified header */}
+        <div className="border-b border-gray-200 mb-8">
+          <div className="flex space-x-8">
+            <button className="text-sm text-gray-900 font-medium border-b border-gray-900 pb-4 px-1">
+              For you
+            </button>
+          </div>
         </div>
 
-        {/* Blog Posts List (Medium-like) */}
+        {/* Blog Posts List (Medium-style) */}
         {blogs.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
@@ -138,52 +146,51 @@ export function View() {
             {isAdmin && (
               <Link
                 href="/blogs/create"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center"
+                className="border border-gray-900 text-gray-900 hover:bg-gray-50 px-6 py-2 rounded-full font-medium transition-colors inline-flex items-center"
               >
                 Create Your First Post
               </Link>
             )}
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-200">
             {blogs.map((blog) => (
-              <article key={blog._id} className="py-6">
-                <div className="flex items-start gap-6">
+              <article key={blog._id} className="py-8">
+                <div className="flex items-start gap-8">
                   {/* Text Column */}
                   <div className="flex-1 min-w-0">
-                    {/* Channel / Author row */}
-                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                    {/* Author without profile image */}
+                    <div className="flex items-center gap-2 text-sm mb-2">
+                      <span className="font-medium text-gray-900">
+                        {(() => {
+                          const a = blog.author;
+                          if (typeof a === 'string') return a;
+                          return a?.name || a?.username || 'Unknown';
+                        })()}
+                      </span>
+                      <span className="text-gray-500">·</span>
+                      <time dateTime={blog.createdAt} className="text-gray-500">
+                        {new Date(blog.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </time>
                       {blog.category && (
-                        <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
-                          <span className="text-[10px] font-bold bg-yellow-400 text-gray-900 rounded px-1">
-                            {(() => {
-                              const c = blog.category;
-                              const label = typeof c === 'string' ? c : (c?.name || '');
-                              return (label || '').slice(0,2).toUpperCase();
-                            })()}
-                          </span>
-                          <span className="truncate">
+                        <>
+                          <span className="text-gray-500">·</span>
+                          <span className="text-gray-500">
                             In {(() => {
                               const c = blog.category;
                               return typeof c === 'string' ? c : (c?.name || '');
                             })()}
                           </span>
-                        </span>
-                      )}
-                      {blog.author && (
-                        <span className="truncate">
-                          by {(() => {
-                            const a = blog.author;
-                            if (typeof a === 'string') return a;
-                            return a?.name || a?.username || 'Unknown';
-                          })()}
-                        </span>
+                        </>
                       )}
                     </div>
 
                     {/* Title and excerpt */}
                     <Link href={`/blogs/${blog.slug}`} className="group block">
-                      <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 group-hover:text-gray-800">
+                      <h2 className="text-lg font-bold font-title text-gray-900 group-hover:text-gray-800 mb-1 leading-tight">
                         {blog.title}
                       </h2>
                       {(() => {
@@ -196,24 +203,43 @@ export function View() {
                         const text = typeof main === 'string' ? main : '';
                         const trimmed = text.length > 0 ? text : '';
                         return trimmed ? (
-                          <p className="mt-1 text-gray-500 text-[15px] leading-6 line-clamp-2">{trimmed}</p>
+                          <p className="text-gray-600 text-sm leading-snug line-clamp-2 overflow-hidden">{trimmed}</p>
                         ) : null;
                       })()}
                     </Link>
 
-                    {/* Meta and actions row */}
+                    {/* Meta and actions row - Medium style */}
                     <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="inline-flex items-center gap-1">
-                          <Star className="h-4 w-4 text-amber-500" />
-                        </div>
-                        <time dateTime={blog.createdAt} className="whitespace-nowrap">
-                          {new Date(blog.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </time>
+                      <div className="flex items-center gap-3 text-sm text-gray-500">
+                        {/* Read time estimate */}
+                        <span className="text-gray-500">
+                          {(() => {
+                            // Calculate read time based on content length
+                            // Average reading speed: 200 words per minute
+                            // Average word length: 5 characters
+                            const contentLength = blog.contentPlain?.length || 0;
+                            const wordCount = contentLength / 5;
+                            const readTimeMinutes = wordCount / 200;
+                            // Ensure minimum 1 minute, maximum realistic time
+                            return Math.max(1, Math.min(30, Math.ceil(readTimeMinutes))) + ' min read';
+                          })()}
+                        </span>
+                        
+                        {/* Tags in Medium style */}
+                        {blog.tags && (
+                          <span className="text-gray-500">
+                            {(() => {
+                              const t = blog.tags;
+                              if (Array.isArray(t)) return t[0]; // Just show first tag Medium-style
+                              if (typeof t === 'string') return t.split(',')[0].trim();
+                              if (Array.isArray(t?.items)) return t.items[0];
+                              if (t && typeof t === 'object') return t.name || '';
+                              return '';
+                            })()}
+                          </span>
+                        )}
+                        
+                        {/* Stats */}
                         {typeof blog.views === 'number' && (
                           <span className="inline-flex items-center gap-1">
                             <Eye className="h-4 w-4" />
@@ -226,22 +252,9 @@ export function View() {
                             {blog.commentsCount}
                           </span>
                         )}
-                        {blog.tags && (
-                          <span className="hidden sm:inline bg-gray-100 px-2 py-1 rounded text-xs">
-                            {(() => {
-                              const t = blog.tags;
-                              if (Array.isArray(t)) return t.join(', ');
-                              if (typeof t === 'string') return t;
-                              // try common shapes like [{name: 'x'}]
-                              if (Array.isArray(t?.items)) return t.items.join(', ');
-                              if (t && typeof t === 'object') return t.name || '';
-                              return String(t);
-                            })()}
-                          </span>
-                        )}
                       </div>
 
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <button className="text-gray-400 hover:text-gray-600" aria-label="Bookmark">
                           <Bookmark className="h-5 w-5" />
                         </button>
@@ -249,11 +262,11 @@ export function View() {
                           <MoreHorizontal className="h-5 w-5" />
                         </button>
                         {isAdmin && (
-                          <div className="flex items-center gap-2">
-                            <Link href={`/blogs/update/${blog._id}`} className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                          <div className="flex items-center gap-2 ml-2">
+                            <Link href={`/blogs/update/${blog._id}`} className="text-gray-600 hover:text-gray-900 text-sm">
                               Edit
                             </Link>
-                            <Link href={`/blogs/delete/${blog._id}`} className="text-red-600 hover:text-red-700 text-sm font-medium">
+                            <Link href={`/blogs/delete/${blog._id}`} className="text-gray-600 hover:text-gray-900 text-sm">
                               Delete
                             </Link>
                           </div>
@@ -262,22 +275,7 @@ export function View() {
                     </div>
                   </div>
 
-                  {/* Thumbnail Column */}
-                  <div className="shrink-0 w-40 h-28 relative rounded overflow-hidden bg-gray-100 border border-gray-200">
-                    {blog.thumbnail || blog.coverImage || blog.imageUrl ? (
-                      <Link href={`/blogs/${blog.slug}`} className="block w-full h-full">
-                        <Image
-                          src={(blog.thumbnail || blog.coverImage || blog.imageUrl)}
-                          alt={blog.title || "Blog thumbnail"}
-                          width={160}
-                          height={112}
-                          className="object-cover w-full h-full"
-                        />
-                      </Link>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">No Image</div>
-                    )}
-                  </div>
+                  {/* Removed thumbnail column */}
                 </div>
               </article>
             ))}
