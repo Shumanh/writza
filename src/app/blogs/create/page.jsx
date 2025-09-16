@@ -1,4 +1,4 @@
-import { Create } from "@/components/blogs/createblogs";
+import Create from "@/components/blogs/createblogs";
 
 
 export default function CreateBlogs(){

@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogTrigger } from "../novel/taiwlind/ui/dialo
 import { ScrollArea } from "../novel/taiwlind/ui/scroll-area";
 import { BookOpen, GithubIcon } from "lucide-react";
 
-export function Create() {
+export default function Create() {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -77,9 +77,9 @@ export function Create() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
       {/* Minimal Header - Just essentials */}
-      <header className="bg-white sticky top-0 z-50 border-b border-gray-100">
+      <header className="sticky top-0 z-40 bg-white/95 supports-[backdrop-filter]:bg-white/60 backdrop-blur border-b border-gray-100 flex-shrink-0">
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex justify-between items-center h-12">
             <div className="flex items-center space-x-6">
@@ -103,10 +103,10 @@ export function Create() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        <div className="relative">
+      <main className="max-w-3xl mx-auto px-6 py-4 flex-1 flex flex-col min-h-0 overflow-y-auto">
+        <div className="relative flex flex-col h-full">
           {/* Seamless Title + Content Writing Flow */}
-          <div className="min-h-screen">
+          <div className="flex flex-col h-full">
             {/* Title Field - Seamlessly integrated */}
             <input
               type="text"
@@ -122,13 +122,13 @@ export function Create() {
                   setDescriptionHtml(`<p>${excerpt}</p>`);
                 }
               }}
-              className="w-full text-4xl font-bold text-gray-800 placeholder-gray-400 border-none outline-none bg-transparent resize-none mb-6"
+              className="w-full text-4xl font-bold text-gray-800 placeholder-gray-400 border-none outline-none bg-transparent resize-none mb-5 flex-shrink-0"
               style={{ fontFamily: 'inherit' }}
               maxLength="50"
             />
 
             {/* Short Description Field */}
-            <div className="mb-6">
+            <div className="mb-0 flex-shrink-0">
               <textarea
                 placeholder="Short description (one or two sentences)"
                 value={descriptionPlain}
@@ -138,36 +138,38 @@ export function Create() {
                   setDescriptionHtml(`<p>${v}</p>`);
                 }}
                 maxLength={150}
-                rows={2}
-                className="w-full text-base text-gray-800 placeholder-gray-400 bg-transparent outline-none border border-gray-200 focus:border-gray-300 rounded-md p-3"
+                className="w-full text-base text-gray-800 placeholder-gray-400 bg-transparent outline-none border-none focus:outline-none focus:ring-0 short-description-textarea"
               />
-              <div className="mt-1 text-xs text-gray-500 text-right">{descriptionPlain.length}/150</div>
+              <div className="mt-2 mb-1 text-xs text-gray-500 text-right">{descriptionPlain.length}/150</div>
               {errors.shortDescription && (
                 <p className="mt-1 text-sm text-red-600">Short Description: {errors.shortDescription[0]}</p>
               )}
             </div>
 
             {/* Content Editor - Flows directly from title */}
-            <UnifiedRichEditor
-              fieldType="content"
-              placeholder="Tell your story..."
-              onChange={(html, plain, wordCount) => {
-                setContentHtml(html);
-                setContentPlain(plain);
-                setContentChars(plain.trim().length);
-                // Auto-populate description from content if title exists but description doesn't
-                if (titlePlain && !descriptionPlain && plain.trim()) {
-                  const excerpt = plain.substring(0, 150);
-                  setDescriptionPlain(excerpt);
-                  setDescriptionHtml(`<p>${excerpt}</p>`);
-                }
-              }}
-              minHeight="calc(100vh - 200px)"
-              showWordCount={false}
-              enableImages={true}
-              enableSlashCommands={true}
-              className="text-lg leading-relaxed text-gray-800 placeholder-gray-400 prose-headings:text-4xl prose-headings:font-bold"
-            />
+            <div className="flex-1 min-h-0">
+              <UnifiedRichEditor
+                fieldType="content"
+                placeholder="Tell your story..."
+                onChange={(html, plain, wordCount) => {
+                  setContentHtml(html);
+                  setContentPlain(plain);
+                  setContentChars(plain.trim().length);
+                  // Auto-populate description from content if title exists but description doesn't
+                  if (titlePlain && !descriptionPlain && plain.trim()) {
+                    const excerpt = plain.substring(0, 150);
+                    setDescriptionPlain(excerpt);
+                    setDescriptionHtml(`<p>${excerpt}</p>`);
+                  }
+                }}
+                minHeight="100%"
+                showWordCount={false}
+                enableImages={true}
+                enableSlashCommands={true}
+                className="border-none shadow-none text-lg leading-relaxed text-gray-800 placeholder-gray-400 prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-headings:font-bold h-full"
+                padding="0.5rem"
+              />
+            </div>
           </div>
           
           {/* Floating validation indicators - unobtrusive */}
@@ -238,4 +240,3 @@ export function Create() {
     </div>
   );
 }
-

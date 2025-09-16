@@ -100,6 +100,32 @@
   }
 }
 
+/* Short description textarea - absolutely fixed at 2 lines */
+.short-description-textarea {
+  line-height: 1.4 !important;
+  height: 3.6em !important; /* Exactly 2 lines */
+  min-height: 3.6em !important;
+  max-height: 3.6em !important;
+  resize: none !important;
+  overflow: hidden !important;
+  font-size: 1rem !important;
+  padding: 8px !important;
+  box-sizing: border-box !important;
+  vertical-align: top !important;
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  margin-bottom: -8px !important; /* Reduce gap with content below */
+}
+
+/* Ensure editor content fits within viewport constraints */
+.h-full .ProseMirror {
+  height: 100% !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  padding-bottom: 60px !important; /* Space for fixed bottom toolbar */
+}
+
+
 
 /* Light theme code blocks */
 pre {

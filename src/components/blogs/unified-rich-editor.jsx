@@ -40,7 +40,8 @@ const UnifiedRichEditor = ({
   showSaveStatus = false,
   enableImages = true,
   enableSlashCommands = true,
-  className = ""
+  className = "",
+  padding = "1rem",
 }) => {
   const [initialContent, setInitialContent] = useState(null);
   const [saveStatus, setSaveStatus] = useState("Saved");
@@ -122,8 +123,8 @@ const UnifiedRichEditor = ({
       case 'tags':
         return `${baseClass} prose-sm`;
       case 'content':
-        // Make H1 headings match the title input: text-4xl font-bold
-        return `${baseClass} prose-lg prose-headings:text-4xl prose-headings:font-bold`;
+        // Properly differentiate between heading sizes
+        return `${baseClass} prose-lg prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-headings:font-bold`;
       default:
         return `${baseClass} prose-lg`;
     }
@@ -158,8 +159,14 @@ const UnifiedRichEditor = ({
   const isMinimalStyle = className.includes('border-none') || className.includes('shadow-none');
   const shouldShowToolbar = !isMinimalStyle && (fieldType === 'content' || fieldType === 'description');
 
+  const isFullHeight = minHeight === "100%" || className.includes('h-full');
+  const containerStyle = isFullHeight ? { height: '100%' } : { minHeight };
+  const editorStyle = isFullHeight ? 
+    `height: 100%; padding: ${padding}; overflow-y: auto;` : 
+    `min-height: ${minHeight}; padding: ${padding};`;
+
   return (
-    <div className={`relative w-full ${className}`}>
+    <div className={`relative w-full ${className} ${isFullHeight ? 'h-full flex flex-col' : ''}`}>
       {(displayWordCount || displaySaveStatus) && (
         <div className="flex absolute right-3 top-3 z-10 gap-2">
           {displaySaveStatus && (
@@ -175,12 +182,12 @@ const UnifiedRichEditor = ({
         </div>
       )}
       
-      <EditorRoot>
+      <EditorRoot className={isFullHeight ? 'flex-1 flex flex-col h-full' : ''}>
         <EditorContent
           initialContent={initialContent}
           extensions={extensions}
-          className={`relative ${getContainerClass()}`}
-          style={{ minHeight }}
+          className={`relative ${getContainerClass()} ${isFullHeight ? 'flex-1 flex flex-col' : ''}`}
+          style={containerStyle}
           editorProps={{
             handleDOMEvents: {
               keydown: (_view, event) => {
@@ -196,9 +203,9 @@ const UnifiedRichEditor = ({
               (view, event, _slice, moved) => handleImageDrop(view, event, moved, uploadFn) : 
               undefined,
             attributes: {
-              class: getEditorClass(),
+              class: `${getEditorClass()} ${isFullHeight ? 'h-full' : ''}`,
               "data-placeholder": placeholder,
-              style: `min-height: ${minHeight}; padding: 1rem;`,
+              style: editorStyle,
             },
           }}
           onUpdate={({ editor }) => {
@@ -244,7 +251,27 @@ const UnifiedRichEditor = ({
             <ColorSelector open={openColor} onOpenChange={setOpenColor} />
           </GenerativeMenuSwitch>
         </EditorContent>
+        
       </EditorRoot>
+      
+      {/* Fixed Bottom Toolbar */}
+      {shouldShowToolbar && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg">
+          <div className="flex items-center justify-center py-2 px-4">
+            <div className="flex items-center space-x-1 rounded-md p-1">
+              <NodeSelector open={openNode} onOpenChange={setOpenNode} />
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              <LinkSelector open={openLink} onOpenChange={setOpenLink} />
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              <MathSelector />
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              <TextButtons />
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              <ColorSelector open={openColor} onOpenChange={setOpenColor} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

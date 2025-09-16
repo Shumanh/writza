@@ -1,3 +1,4 @@
+
 "use client"
 import {useState , useEffect} from "react"
 import Link from "next/link";
@@ -66,10 +67,10 @@ if (loading){
 
   return (
     <article className="bg-white">
-      <header className="max-w-3xl mx-auto px-6 pt-10">
+      <header className="max-w-3xl mx-auto px-6 pt-10 md:pt-12 space-y-3">
         {/* Category badge */}
         {categoryName && (
-          <div className="mb-3 inline-flex items-center gap-2">
+          <div className="inline-flex items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium">
               <span className="inline-block w-5 h-5 rounded bg-yellow-400 text-gray-900 text-[10px] font-bold flex items-center justify-center">
                 {categoryName.slice(0,2).toUpperCase()}
@@ -80,19 +81,18 @@ if (loading){
         )}
 
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900">
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-gray-900 mt-0">
           {blog.title}
         </h1>
         {subtitle && (
-          <p className="mt-2 text-xl text-gray-600">{subtitle}</p>
+          <p className="text-xl text-gray-600">{subtitle}</p>
         )}
 
         {/* Author and meta */}
-        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
           {/* Avatar placeholder */}
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500" />
           <span className="font-medium text-gray-900">{authorName}</span>
-          <span>•</span>
           <time className="inline-flex items-center gap-1" dateTime={blog.createdAt}>
             <Calendar className="h-4 w-4" />
             {new Date(blog.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}
@@ -118,7 +118,7 @@ if (loading){
 
       {/* Hero Image */}
       {hero && (
-        <div className="mt-8 max-w-4xl mx-auto px-6">
+        <div className="mt-6 max-w-3xl mx-auto px-6">
           <div className="relative w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50" style={{ aspectRatio: '16/9' }}>
             <Image src={hero} alt={blog.title || 'Cover image'} fill className="object-cover" />
           </div>
@@ -126,7 +126,7 @@ if (loading){
       )}
 
       {/* Content */}
-      <main className="prose prose-lg prose-gray max-w-3xl mx-auto px-6 py-10">
+      <main className="prose prose-lg prose-gray max-w-3xl mx-auto px-6 py-6 mt-4">
         <div dangerouslySetInnerHTML={{ __html: blog.content }} />
         {blog.tags && (
           <div className="mt-8 text-sm text-gray-600">

@@ -24,8 +24,8 @@ import Link from "next/link";
 
 export default function Page() {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-4 py-4 sm:px-5">
-      <div className="flex w-full max-w-screen-lg items-center gap-2 px-4 sm:mb-[calc(20vh)]">
+    <div className="flex h-screen flex-col items-center">
+      <div className="flex w-full max-w-screen-lg items-center gap-2 px-4 py-3 flex-shrink-0">
         <Button size="icon" variant="outline">
           <a href="https://github.com/Shumanh/mini.projects/tree/main/memorie" target="_blank" rel="noreferrer">
             <GithubIcon />
@@ -49,7 +49,9 @@ export default function Page() {
         </Link>
         <Menu />
       </div>
-      <TailwindAdvancedEditor />
+      <div className="flex-1 w-full max-w-screen-lg px-4 min-h-0">
+        <TailwindAdvancedEditor />
+      </div>
     </div>
   );
 }
