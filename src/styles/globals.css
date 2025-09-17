@@ -255,3 +255,12 @@ pre {
     font-weight: 700;
   }
 }
+
+.rbt-tweet-card {
+  background-color: white !important;
+}
+
+.react-tweet-avatar {
+  width: 48px !important; /* Increased size */
+  height: 48px !important; /* Increased size */
+}
