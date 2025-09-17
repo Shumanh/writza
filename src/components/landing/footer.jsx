@@ -1,5 +1,8 @@
+'use client';
+
 import { Mail, Phone, Github, Twitter, MessageCircle } from "lucide-react";
-export default function Footer() {
+
+function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -11,8 +14,10 @@ export default function Footer() {
         </div>
         <div className="flex items-center gap-5 text-primary/80">
           <a
-            href="mailto:theshumanhere@gmail.com"
-            className="hover:text-primary transition-all duration-400 hover:-translate-y-0.5"
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=theshumanhere@gmail.com&su=Contact%20from%20OwnTheWeb"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-all duration-400 hover:-translate-y-0.5 p-1"
             aria-label="Email Shuman"
             title="Email"
           >
@@ -54,5 +59,7 @@ export default function Footer() {
     </footer>
   );
 }
+
+export default Footer;
 
 

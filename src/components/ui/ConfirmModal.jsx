@@ -11,7 +11,7 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
   loading = false,
-  confirmButtonClass = "bg-red-600 hover:bg-red-700 text-white",
+  confirmButtonClass = "bg-blue-600 hover:bg-blue-700 text-white",
 }) {
   if (!open) return null;
 

@@ -19,6 +19,7 @@ export default function Create() {
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [tagsModalOpen, setTagsModalOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [adminInitial, setAdminInitial] = useState(null);
   const router = useRouter();
   
   // Load saved content when component mounts
@@ -44,6 +45,21 @@ export default function Create() {
   // Mark draft as loaded once localStorage read attempt is done
   useEffect(() => {
     setDraftLoaded(true);
+  }, []);
+
+  // Load admin initial for avatar
+  useEffect(() => {
+    async function loadAdmin() {
+      try {
+        const response = await fetch('/api/auth/verify-admin', { method: 'GET', credentials: 'include' });
+        const data = await response.json();
+        if (!data.error && data.isAdmin) {
+          if (data.initial) setAdminInitial(String(data.initial).toUpperCase());
+          else if (data.email) setAdminInitial(String(data.email).charAt(0).toUpperCase());
+        }
+      } catch (_e) {}
+    }
+    loadAdmin();
   }, []);
 
   async function submitWithTags(finalTags) {
@@ -123,7 +139,7 @@ export default function Create() {
                 {publishing ? "Publishing..." : "Publish"}
               </button>
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                S
+                {adminInitial || 'S'}
               </div>
             </div>
           </div>

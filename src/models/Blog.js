@@ -59,6 +59,19 @@ const blogSchema = new mongoose.Schema(
       default: null,
       index: true,
     },
+    // Metrics
+    views: {
+      type: Number,
+      default: 0,
+      min: 0,
+      index: true,
+    },
+    likesCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+      index: true,
+    },
   },
   {
     timestamps: true,

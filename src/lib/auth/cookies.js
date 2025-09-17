@@ -21,14 +21,7 @@ export async function getUserFromCookies(){
       }
     }
 
-    // Check if user has admin role
-    if(verifyUser.role !== "admin"){
-      return {
-        error: true, 
-        message: "Not an admin"
-      } 
-    }
-    
+    // Any verified user is allowed; downstream can check roles if needed
     return {
       error: false, 
       message: "Token verified successfully", 

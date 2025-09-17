@@ -7,28 +7,24 @@ import Script from 'next/script';
 
 export default function BlogsLayout({ children }) {
 
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function checkAdminStatus() {
+    async function checkAuth() {
       try {
-    
-        const response = await fetch('/api/auth/verify-admin', {
-          method: 'GET',
-          credentials: 'include'
-        });
+        const response = await fetch('/api/auth/me', { method: 'GET', credentials: 'include' });
         const data = await response.json();
-        setIsAdmin(!data.error && data.isAdmin);
+        setLoggedIn(!!data.loggedIn);
       } catch (error) {
         console.error('Auth check error:', error);
-        setIsAdmin(false);
+        setLoggedIn(false);
       } finally {
         setLoading(false);
       }
     }
 
-    checkAdminStatus();
+    checkAuth();
   }, []);
 
   if (loading) {

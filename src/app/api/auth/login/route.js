@@ -30,12 +30,7 @@ if (!user) {
   }, {status: 400});
 }
 
-if (user.role !== 'admin') {
-  return NextResponse.json({
-    error: true, 
-    message: {email: ["Doesn't seem like you belong here..."]}
-  }, {status: 403});
-}
+// Allow any registered user to log in (no admin restriction)
 
   let passwordCompare =  await bcrypt.compare(password, user.password);
 

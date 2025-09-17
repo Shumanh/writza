@@ -40,7 +40,7 @@ export async function PUT(req) {
 
         await dbConnect();
 
-        const existingBlog = await Blog.findById(blogId);
+        const existingBlog = await Blog.findById(blogId).populate('author', 'username');
         if (!existingBlog) {
             return NextResponse.json(
     
@@ -51,7 +51,7 @@ export async function PUT(req) {
         }
 
     
-        if (existingBlog.author._id.toString() !== verifyUser.data.id) {
+        if (String(existingBlog.author?._id || existingBlog.author) !== String(verifyUser.data.id)) {
             return NextResponse.json(
                 
                 { error:true,

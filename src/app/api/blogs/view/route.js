@@ -53,3 +53,27 @@ export async function GET(request) {
         );
     }
 }
+
+// Increment view count for a blog
+export async function POST(request) {
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        if (!id) {
+            return NextResponse.json({ error: true, message: 'Missing blog id' }, { status: 400 });
+        }
+        const updated = await Blog.findByIdAndUpdate(
+            id,
+            { $inc: { views: 1 } },
+            { new: true, runValidators: true }
+        ).select('views');
+        if (!updated) {
+            return NextResponse.json({ error: true, message: 'Blog not found' }, { status: 404 });
+        }
+        return NextResponse.json({ error: false, views: updated.views }, { status: 200 });
+    } catch (error) {
+        console.error('Increment view error:', error);
+        return NextResponse.json({ error: true, message: 'Failed to increment views' }, { status: 500 });
+    }
+}

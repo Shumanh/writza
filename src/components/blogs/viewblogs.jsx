@@ -3,18 +3,20 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, MessageSquare, Bookmark, MoreHorizontal, Search, Bell } from "lucide-react";
+import { Eye, MessageSquare, Bookmark, MoreHorizontal, Search, Bell, Heart } from "lucide-react";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export function View() {
   const [errors, setErrors] = useState("");
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [menuOpenId, setMenuOpenId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [userInitial, setUserInitial] = useState(null);
   const router = useRouter();
 
   function toggleMenu(id) {
@@ -48,17 +50,25 @@ export function View() {
   }
 
   useEffect(() => {
-    async function checkAdminStatus() {
+    async function checkAuth() {
       try {
-        const response = await fetch('/api/auth/verify-admin', {
-          method: 'GET',
-          credentials: 'include'
-        });
+        const response = await fetch('/api/auth/me', { method: 'GET', credentials: 'include' });
         const data = await response.json();
-        setIsAdmin(!data.error && data.isAdmin);
+        const ok = !!data.loggedIn;
+        setLoggedIn(ok);
+        if (ok) {
+          setCurrentUser({ id: data.id, username: data.username, role: data.role });
+          const seed = data.username || data.id || '';
+          setUserInitial(String(seed).charAt(0).toUpperCase() || 'U');
+        } else {
+          setCurrentUser(null);
+          setUserInitial(null);
+        }
       } catch (error) {
         console.error('Auth check error:', error);
-        setIsAdmin(false);
+        setLoggedIn(false);
+        setCurrentUser(null);
+        setUserInitial(null);
       } finally {
         setAuthLoading(false);
       }
@@ -77,7 +87,7 @@ export function View() {
       }
     }
 
-    checkAdminStatus();
+    checkAuth();
     fetchBlogs();
   }, []);
 
@@ -110,7 +120,7 @@ export function View() {
               <Link href="/" className="text-xl font-bold text-gray-900">
                 OwnTheWeb
               </Link>
-              {isAdmin && (
+              {loggedIn && (
                 <nav className="hidden md:flex items-center space-x-6">
                   <Link
                     href="/blogs/view"
@@ -131,7 +141,7 @@ export function View() {
               <button className="text-gray-600 hover:text-gray-900">
                 <Search className="h-5 w-5" />
               </button>
-              {isAdmin && (
+              {loggedIn && (
                 <>
                   <button className="text-gray-600 hover:text-gray-900">
                     <Bell className="h-5 w-5" />
@@ -144,8 +154,8 @@ export function View() {
                   </Link>
                 </>
               )}
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                S
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                {userInitial || 'S'}
               </div>
             </div>
           </div>
@@ -173,12 +183,12 @@ export function View() {
             </div>
             <h3 className="text-xl font-medium text-gray-900 mb-2">No blog posts yet</h3>
             <p className="text-gray-600 mb-6">
-              {isAdmin
+              {loggedIn
                 ? "Start creating your first blog post to share your thoughts with the world."
                 : "Check back soon for new content."
               }
             </p>
-            {isAdmin && (
+            {loggedIn && (
               <Link
                 href="/blogs/create"
                 className="border border-gray-900 text-gray-900 hover:bg-gray-50 px-6 py-2 rounded-full font-medium transition-colors inline-flex items-center"
@@ -293,6 +303,12 @@ export function View() {
                             {Intl.NumberFormat('en-US', { notation: 'compact' }).format(blog.views)}
                           </span>
                         )}
+                        {typeof blog.likesCount === 'number' && (
+                          <span className="inline-flex items-center gap-1">
+                            <Heart className="h-4 w-4 text-blue-600 fill-blue-600" />
+                            {Intl.NumberFormat('en-US', { notation: 'compact' }).format(blog.likesCount)}
+                          </span>
+                        )}
                         {typeof blog.commentsCount === 'number' && (
                           <span className="inline-flex items-center gap-1">
                             <MessageSquare className="h-4 w-4" />
@@ -305,7 +321,7 @@ export function View() {
                         <button className="text-gray-400 hover:text-gray-600" aria-label="Bookmark">
                           <Bookmark className="h-5 w-5" />
                         </button>
-                        {isAdmin && (
+                        {(loggedIn && String((blog.author && (blog.author._id || blog.author)) || '') === String(currentUser?.id)) && (
                           <>
                             <button
                               className="text-gray-400 hover:text-gray-600"

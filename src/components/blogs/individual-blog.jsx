@@ -5,13 +5,15 @@ import { createRoot } from "react-dom/client";
 import { Tweet } from "react-tweet";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Eye, MessageSquare, Clock } from "lucide-react";
+import { Calendar, Eye, MessageSquare, Clock, Heart } from "lucide-react";
 
  export function IndividualBlog({id})
  {
   const[blog , setBlog] = useState(null)
   const [error , setError] = useState('')
-const [loading ,setLoading ] = useState(true)
+  const [loading ,setLoading ] = useState(true)
+  const [likesCount, setLikesCount] = useState(0)
+  const [liked, setLiked] = useState(false)
 
 async function getBlog(){
 
@@ -22,6 +24,8 @@ async function getBlog(){
     
     if(response.ok){
       setBlog(data.data)
+      // Initialize local like count
+      setLikesCount(typeof data.data?.likesCount === 'number' ? data.data.likesCount : 0)
     }
     else{
       setError(data.message || "Failed to fetch the blogs")
@@ -42,6 +46,59 @@ useEffect(() => {
       getBlog()
     }
   }, [id])
+
+ // Increment view count once per session for this blog
+ useEffect(() => {
+   if (!id) return;
+   try {
+     const key = `viewed:${id}`;
+     const alreadyViewed = sessionStorage.getItem(key);
+     if (alreadyViewed) return;
+     // Fire-and-forget; we don't block UI
+     fetch(`/api/blogs/view?id=${id}`, { method: 'POST' })
+       .then(res => res.json())
+       .then((_d) => {
+         sessionStorage.setItem(key, '1');
+         // Optionally update local blog.views
+         setBlog(prev => prev ? { ...prev, views: typeof _d?.views === 'number' ? _d.views : (typeof prev.views === 'number' ? prev.views + 1 : 1) } : prev)
+       })
+       .catch(() => {});
+   } catch (_e) {}
+ }, [id])
+
+ // Initialize liked state from session for this blog
+ useEffect(() => {
+   if (!id) return;
+   try {
+     const likedKey = `liked:${id}`;
+     setLiked(!!sessionStorage.getItem(likedKey));
+   } catch (_e) {}
+ }, [id])
+
+ async function handleLike() {
+   if (!id) return;
+   const likedKey = `liked:${id}`;
+   // Prevent double-like in this session
+   if (liked) return;
+   // Optimistic update
+   setLiked(true);
+   setLikesCount((c) => (typeof c === 'number' ? c + 1 : 1));
+   try {
+     const res = await fetch(`/api/blogs/like?id=${id}`, { method: 'POST' });
+     const data = await res.json();
+     if (!res.ok || data?.error) {
+       // Revert on failure
+       setLiked(false);
+       setLikesCount((c) => Math.max(0, (typeof c === 'number' ? c - 1 : 0)));
+       return;
+     }
+     if (typeof data.likesCount === 'number') setLikesCount(data.likesCount);
+     try { sessionStorage.setItem(likedKey, '1'); } catch (_e) {}
+   } catch (_e) {
+     setLiked(false);
+     setLikesCount((c) => Math.max(0, (typeof c === 'number' ? c - 1 : 0)));
+   }
+ }
   
   // Load/refresh Twitter embeds after content mounts or changes
   const contentRef = useRef(null);
@@ -254,6 +311,10 @@ useEffect(() => {
               {Intl.NumberFormat('en-US', { notation: 'compact' }).format(blog.views)}
             </span>
           )}
+          <span className="inline-flex items-center gap-1">
+            <Heart className={`h-4 w-4 ${liked ? 'text-blue-600 fill-blue-600' : ''}`} />
+            {Intl.NumberFormat('en-US', { notation: 'compact' }).format(likesCount || 0)}
+          </span>
           {typeof blog.commentsCount === 'number' && (
             <span className="inline-flex items-center gap-1">
               <MessageSquare className="h-4 w-4" /> {blog.commentsCount}
@@ -279,6 +340,19 @@ useEffect(() => {
             Tags: {Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags?.name || String(blog.tags))}
           </div>
         )}
+        {/* Like button */}
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={handleLike}
+            disabled={liked}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm transition-colors ${liked ? 'bg-blue-50 border-blue-200 text-blue-700 cursor-default' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+            aria-pressed={liked}
+          >
+            <Heart className={`h-4 w-4 ${liked ? 'text-blue-600 fill-blue-600' : ''}`} />
+            {liked ? 'Liked' : 'Like'} • {Intl.NumberFormat('en-US', { notation: 'compact' }).format(likesCount || 0)}
+          </button>
+        </div>
 
         {/* Admin actions */}
         {(blog.canEdit || blog.canDelete) && (
