@@ -28,12 +28,7 @@ if(!blogId) {
              message : "Blog not found" }, { status: 404 });
     }
 
-
-console.log(existingBlog.author.toString())
-console.log(verifyUser.data.id)
-
-
-
+    
     if (existingBlog.author._id.toString() !== verifyUser.data.id) {
                 return NextResponse.json(
                     { error:true , 

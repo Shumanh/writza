@@ -17,7 +17,6 @@ import {
   TiptapImage,
   TiptapLink,
   TiptapUnderline,
-  Twitter,
   UpdatedImage,
   UploadImagesPlugin,
   Youtube,
@@ -25,6 +24,7 @@ import {
 
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
+import Twitter from "./twitter";
 
 //TODO I am using cx here to get tailwind autocomplete working, idk if someone else can write a regex to just capture the class key in objects
 const aiHighlight = AIHighlight;
@@ -175,7 +175,6 @@ export const defaultExtensions = [
   mathematics,
   characterCount,
   TiptapUnderline,
-
   HighlightExtension,
   TextStyle,
   Color,

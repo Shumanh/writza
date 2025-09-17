@@ -1,31 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import UnifiedRichEditor from "./unified-rich-editor";
-import Menu from "../novel/taiwlind/ui/menu";
-import { defaultEditorContent } from "@/lib/novels/content";
-import TailwindAdvancedEditor from "../novel/taiwlind/advanced-editor";
-import { Button } from "../novel/taiwlind/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "../novel/taiwlind/ui/dialog";
-import { ScrollArea } from "../novel/taiwlind/ui/scroll-area";
-import { BookOpen, GithubIcon } from "lucide-react";
-import { useDebouncedCallback } from "use-debounce";
 import TagsModal from "@/components/ui/TagsModal";
 
 export default function Create() {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [titleHtml, setTitleHtml] = useState("");
+  
   const [titlePlain, setTitlePlain] = useState("");
-  const [descriptionHtml, setDescriptionHtml] = useState("");
   const [descriptionPlain, setDescriptionPlain] = useState("");
   const [contentHtml, setContentHtml] = useState("");
   const [contentPlain, setContentPlain] = useState("");
   const [draftLoaded, setDraftLoaded] = useState(false);
-  const [tagsHtml, setTagsHtml] = useState("");
   const [tagsPlain, setTagsPlain] = useState("");
   const [contentChars, setContentChars] = useState(0);
   const [saveStatus, setSaveStatus] = useState("Saved");
@@ -49,12 +37,8 @@ export default function Create() {
       if (savedTags) setTagsPlain(savedTags);
       
       // Update derived values
-      if (savedTitle) setTitleHtml(`<p>${savedTitle}</p>`);
-      if (savedDescription) setDescriptionHtml(`<p>${savedDescription}</p>`);
       if (savedContent) setContentChars(savedContent.trim().length);
-    } catch (error) {
-      console.error("Error loading saved blog content:", error);
-    }
+    } catch (_error) {}
   }, []);
 
   // Mark draft as loaded once localStorage read attempt is done
@@ -85,13 +69,10 @@ export default function Create() {
       if (data.error === false) {
         setMessage(data.message);
         setErrors("");
-        setTitleHtml("");
         setTitlePlain("");
-        setDescriptionHtml("");
         setDescriptionPlain("");
         setContentHtml("");
         setContentPlain("");
-        setTagsHtml("");
         setTagsPlain("");
         setContentChars(0);
         
@@ -109,12 +90,10 @@ export default function Create() {
       } else {
         setErrors(data.message);
       }
-    } catch (error) {
-      console.log(error);
+    } catch (_error) {
       setErrors({ global: "An unexpected error occurred" });
     } finally {
       setPublishing(false);
-      setLoading(false);
     }
   }
 
@@ -138,7 +117,7 @@ export default function Create() {
               <button
                 type="button"
                 onClick={openTagsModalBeforePublish}
-                disabled={loading || contentChars < 100}
+                disabled={publishing || contentChars < 100}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {publishing ? "Publishing..." : "Publish"}
@@ -163,7 +142,6 @@ export default function Create() {
               onChange={(e) => {
                 const value = e.target.value;
                 setTitlePlain(value);
-                setTitleHtml(`<p>${value}</p>`);
                 setSaveStatus("Unsaved");
                 
                 // Save to localStorage
@@ -173,7 +151,6 @@ export default function Create() {
                 if (!descriptionPlain && contentPlain.trim()) {
                   const excerpt = contentPlain.substring(0, 150);
                   setDescriptionPlain(excerpt);
-                  setDescriptionHtml(`<p>${excerpt}</p>`);
                   window.localStorage.setItem("blog-description", excerpt);
                 }
                 
@@ -193,7 +170,6 @@ export default function Create() {
                 onChange={(e) => {
                   const v = e.target.value.slice(0, 150);
                   setDescriptionPlain(v);
-                  setDescriptionHtml(`<p>${v}</p>`);
                   setSaveStatus("Unsaved");
                   
                   // Save to localStorage
@@ -232,7 +208,6 @@ export default function Create() {
                   if (titlePlain && !descriptionPlain && plain.trim()) {
                     const excerpt = plain.substring(0, 150);
                     setDescriptionPlain(excerpt);
-                    setDescriptionHtml(`<p>${excerpt}</p>`);
                     window.localStorage.setItem("blog-description", excerpt);
                   }
                   

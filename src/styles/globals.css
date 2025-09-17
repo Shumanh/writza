@@ -120,7 +120,8 @@
 /* Ensure editor content fits within viewport constraints */
 .h-full .ProseMirror {
   height: 100% !important;
-  overflow-y: auto !important;
+  /* Avoid inner scroll; let the page handle scrolling to prevent double scrollbars */
+  overflow-y: visible !important;
   box-sizing: border-box !important;
   padding-bottom: 60px !important; /* Space for fixed bottom toolbar */
 }

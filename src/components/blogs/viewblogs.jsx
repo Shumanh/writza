@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Star, Eye, MessageSquare, Bookmark, MoreHorizontal, Search, Bell } from "lucide-react";
+import { Eye, MessageSquare, Bookmark, MoreHorizontal, Search, Bell } from "lucide-react";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export function View() {

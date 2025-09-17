@@ -2,6 +2,35 @@
   @apply p-12 px-8 sm:px-12;
 }
 
+/* Enforce readable light theme text colors inside the editor */
+.ProseMirror,
+.ProseMirror p,
+.ProseMirror li,
+.ProseMirror span,
+.ProseMirror strong,
+.ProseMirror em {
+  color: #1f2937; /* text-gray-800 */
+}
+
+/* Headings should always be dark for readability, even if inline styles exist */
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+  color: #111827 !important; /* text-gray-900 */
+}
+
+.ProseMirror h1[style],
+.ProseMirror h2[style],
+.ProseMirror h3[style],
+.ProseMirror h4[style],
+.ProseMirror h5[style],
+.ProseMirror h6[style] {
+  color: #111827 !important;
+}
+
 .ProseMirror .is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
@@ -121,6 +150,24 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
   max-width: 400px !important;
 }
 
+/* Hide scrollbars inside the slash-command/tippy dropdown to remove the black scroller */
+.tippy-box * {
+  /* Firefox */
+  scrollbar-width: none;
+  /* IE/Edge */
+  -ms-overflow-style: none;
+}
+
+.tippy-box *::-webkit-scrollbar {
+  /* Chrome/Safari */
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.tippy-box *::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
 .ProseMirror:not(.dragging) .ProseMirror-selectednode {
   outline: none !important;
   background-color: var(--novel-highlight-blue);
@@ -209,4 +256,13 @@ span[style] > strong {
 
 mark[style] > strong {
   color: inherit;
+}
+
+/* Ensure headings and general text are clearly visible in light theme */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--gray-800);
+}
+
+p {
+  color: var(--gray-800);
 }

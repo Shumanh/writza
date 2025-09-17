@@ -77,8 +77,6 @@ export async function PUT(req) {
             }
         ).populate('author', 'username');
 
-        console.log(`Blog ${blogId} updated successfully by user ${verifyUser.id}`);
-
         return NextResponse.json({
 
             message: "Blog updated successfully!",
@@ -86,7 +84,6 @@ export async function PUT(req) {
         }, { status: 200 });
 
     } catch (error) {
-        console.error("Blog update error:", error);
         
         return NextResponse.json(
             { 

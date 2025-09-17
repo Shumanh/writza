@@ -1,142 +1,131 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useState } from "react"
-import { useRouter } from 'next/navigation';
-
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
+  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const [message , setMessage] = useState('')
-  const [errors , setErrors] = useState({})
-  const [loading , setLoading ]  = useState(false)
+  const router = useRouter();
 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setErrors({});
+    setMessage("");
+    setLoading(true);
 
-  const router = useRouter()
+    const formData = new FormData(e.target);
 
-async function handleSubmit (e){
+    const userData = {
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
 
-e.preventDefault()
-setErrors({})
-setMessage('')
-setLoading(true)
+    const url = "/api/auth/login";
+    const options = { method: "POST", headers: { accept: "application/json" }, body: JSON.stringify(userData) };
 
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
 
-const formData = new FormData(e.target)
-
-const userData = {
-  email: formData.get("email") , 
-  password : formData.get("password")
-}
-
-const url = '/api/auth/login';
-const options = {method: 'POST', headers: {accept: 'application/json'} , body:JSON.stringify(userData)};
-
-try{
-const response = await fetch(url , options)
-const data = await response.json()
-
-if(data.error===false){
-setMessage(data.message)
-setTimeout(()=>{
-router.push('/blogs/view')
- } , 1000)
-
-}else{
-  setErrors(data.message ||{ global: "Something went wrong" } )
-}
-}
-
-catch(error){
- console.log(error)
-   setErrors( {global : "An unexpected error occurred"})
-
-}
-finally {
-  setLoading(false)
-}
-
-}
+      if (data.error === false) {
+        setMessage(data.message);
+        setTimeout(() => {
+          router.push("/blogs/view");
+        }, 1000);
+      } else {
+        setErrors(data.message || { global: "Something went wrong" });
+      }
+    } catch (error) {
+      // no-op
+      setErrors({ global: "An unexpected error occurred" });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="flex h-screen">
-      <div className="border w-[32%] h-[52%] m-auto bg-neutral-900 rounded-lg shadow dark:border dark:border-gray-700">
-        <div className="p-6">
-          {/* Back Button */}
-          <div className="mb-4">
-            <Link 
-              href="/" 
-              className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors duration-200"
-            >
-              <svg 
-                className="w-4 h-4 mr-2" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Home
-            </Link>
-          </div>
-          
-          <h1 className="text-xl font-bold">Login to your account</h1>
-          <p>Enter your email below to login to your account</p>
+    <div className="flex items-center justify-center min-h-screen bg-black px-4">
+      <div className="w-full max-w-md bg-neutral-900 rounded-xl shadow-lg border border-gray-800 p-6">
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center text-gray-400 hover:text-gray-300 transition-colors duration-200"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Home
+          </Link>
+        </div>
 
-          
-          
-          <form onSubmit={handleSubmit}>
+        <h1 className="text-2xl font-semibold text-white">Login to your account</h1>
+        <p className="text-sm text-gray-400 mb-6">Enter your email below to login to your account</p>
 
- {errors.global && <div className="mt-4 p-2 bg-red-500 text-white rounded-md">{errors.global}</div>}
+        <form onSubmit={handleSubmit}>
+          {errors.global && <div className="mt-2 p-2 bg-red-600 text-white rounded-md">{errors.global}</div>}
 
-
-
-            <div className="mt-4">
-              <label>Enter your email</label>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm text-gray-300 mb-1">Email</label>
               <input
                 type="email"
                 id="email"
                 name="email"
-                placeholder="me@example.com"
-                className="flex p-1 border border-white w-full mt-2 rounded-lg shadow dark:border-gray-700 pl-2"
+                placeholder="m@example.com"
+                className="w-full px-3 py-2 rounded-lg bg-neutral-800 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600"
               />
-                {errors.email && <p className="text-red-500 mt-1">{errors.email[0]}</p>}
+              {errors.email && <p className="text-red-500 mt-1 text-sm">{errors.email[0]}</p>}
+            </div>
 
-             
-              <div className="mt-4 flex justify-between mr-4">
-                <label>password</label>
-                <p>Forgot your Password?</p>
+            <div>
+              <div className="flex justify-between items-center">
+                <label className="block text-sm text-gray-300 mb-1">Password</label>
+                <Link href="#" className="text-sm text-gray-400 hover:underline">
+                  Forgot your password?
+                </Link>
               </div>
               <input
                 type="password"
                 id="password"
                 name="password"
-                className="flex p-1 border border-white mt-2 rounded-lg shadow dark:border w-full dark:border-gray-700 pl-2"
+                className="w-full px-3 py-2 rounded-lg bg-neutral-800 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600"
               />
-               {errors.password && <p className="text-red-500 mt-1">{errors.password[0]}</p>}
-            
-  
-              <div className="p-1 border border-white mt-6 rounded-lg shadow dark:border dark:border-gray-700 pl-2 text-center bg-white text-black">
-                <button type="submit">
-                {loading ? "Logging in ..." : "Login"}
-                </button>
-
-            {message && <div className="mt-4 p-2 bg-green-500 text-white rounded-md">{message}</div>}
-
-              </div>
-              <div className="border mt-4 p-1 rounded-lg shadow dark:border dark:border-gray-700 text-center">
-                <button type="button">Login with Google</button>
-              </div>
-              <div className="mt-4 text-center">
-                <p>
-                  Don't have an account?
-                  <Link href="/auth/signup" className="ml-1 border-b-1">Sign up</Link>
-                </p>
-              </div>
+              {errors.password && <p className="text-red-500 mt-1 text-sm">{errors.password[0]}</p>}
             </div>
-          </form>
-        </div>
+
+            <div>
+              <button
+                type="submit"
+                className="w-full py-3 rounded-lg bg-white text-black font-medium hover:brightness-95 transition"
+              >
+                {loading ? "Logging in ..." : "Login"}
+              </button>
+
+              {message && <div className="mt-4 p-2 bg-green-600 text-white rounded-md text-center">{message}</div>}
+            </div>
+
+            <div>
+              <button
+                type="button"
+                className="w-full py-3 rounded-lg border border-gray-700 text-gray-200 bg-neutral-900 hover:bg-neutral-800 transition"
+              >
+                Login with Google
+              </button>
+            </div>
+
+            <div className="text-center text-sm text-gray-400">
+              Don't have an account?{" "}
+              <Link href="/auth/signup" className="text-white underline ml-1">
+                Sign up
+              </Link>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
-  )
+  );
 }

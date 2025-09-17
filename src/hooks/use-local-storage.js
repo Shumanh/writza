@@ -14,7 +14,6 @@ export default function useLocalStorage(key, initialValue) {
     } catch {
       // ignore
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   useEffect(() => {

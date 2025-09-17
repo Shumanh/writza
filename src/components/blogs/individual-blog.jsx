@@ -1,6 +1,8 @@
 
 "use client"
 import {useState , useEffect, useRef} from "react"
+import { createRoot } from "react-dom/client";
+import { Tweet } from "react-tweet";
 import Link from "next/link";
 import Image from "next/image";
 import { Calendar, Eye, MessageSquare, Clock } from "lucide-react";
@@ -28,7 +30,6 @@ async function getBlog(){
   }
 
 catch(error){
-console.error("getblogerror", error)
     setError('An error occurred while fetching the blog')
 } finally { 
   setLoading(false)
@@ -47,39 +48,84 @@ useEffect(() => {
   useEffect(() => {
     if (!blog) return;
     const container = contentRef.current;
-    // Ensure widgets.js is present regardless of initial selector result
-    const existing = document.querySelector('script[src="https://platform.twitter.com/widgets.js"]');
-    console.debug('[IndividualBlog] Twitter widgets existing:', !!existing);
+    if (!container) return;
+    let debounceTimer = null;
+    const schedule = (fn) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(fn, 50);
+    };
     const loadAndRender = () => {
-      if (!(window.twttr && window.twttr.widgets)) return;
-      console.debug('[IndividualBlog] Twitter widgets ready, processing content');
-      // First, let widgets.js process any existing blockquote.twitter-tweet
-      window.twttr.widgets.load(container);
-
-      // Then, convert plain Twitter/X links into embeds
+      const normalizeTweetUrl = (href) => {
+        if (!href || typeof href !== 'string') return href;
+        try {
+          const u = new URL(href, window.location.origin);
+          if (u.hostname === 'x.com' || u.hostname === 'www.x.com') {
+            u.hostname = 'twitter.com';
+          }
+          u.search = '';
+          u.hash = '';
+          return u.toString();
+        } catch (_e) {
+          return href.replace(/^(https?:\/\/)(www\.)?x\.com\//, '$1twitter.com/');
+        }
+      };
+      try {
+        const appendAnchorIfMissing = (el, href) => {
+          if (!href) return;
+          if (el.querySelector && (el.querySelector('a[href*="twitter.com/"]') || el.querySelector('a[href*="x.com/"]'))) return;
+          const a = document.createElement('a');
+          a.setAttribute('href', normalizeTweetUrl(href));
+          a.textContent = href;
+          el.appendChild(a);
+        };
+        container.querySelectorAll('[data-type="tweet"]').forEach((node) => {
+          const src = node.getAttribute('data-src');
+          const id = node.getAttribute('data-tweet-id');
+          const href = src || (id ? `https://x.com/i/web/status/${id}` : null);
+          appendAnchorIfMissing(node, href);
+        });
+        container.querySelectorAll('[data-src]').forEach((node) => {
+          const src = node.getAttribute('data-src') || '';
+          if (/https?:\/\/(?:www\.)?(twitter\.com|x\.com)\/[^\s/]+\/status\/\d+/.test(src)) {
+            appendAnchorIfMissing(node, normalizeTweetUrl(src));
+          }
+        });
+        // legacy nodes that used a plain `src` attribute
+        container.querySelectorAll('[src]').forEach((node) => {
+          const src = node.getAttribute('src') || '';
+          if (/https?:\/\/(?:www\.)?(twitter\.com|x\.com)\/[^\s/]+\/status\/\d+/.test(src)) {
+            appendAnchorIfMissing(node, normalizeTweetUrl(src));
+          }
+        });
+        // placeholders with data-tweet-id
+        container.querySelectorAll('[data-tweet-id]').forEach((node) => {
+          const id = node.getAttribute('data-tweet-id');
+          if (id) appendAnchorIfMissing(node, `https://x.com/i/web/status/${id}`);
+        });
+      } catch (_e) {}
+      // Convert Twitter/X links into embeds using react-tweet
       if (!container) return;
       const links = container.querySelectorAll('a[href*="twitter.com/"], a[href*="x.com/"]');
-      console.debug('[IndividualBlog] Found potential twitter links:', links.length);
       links.forEach((link) => {
-        const href = link.getAttribute('href') || '';
+        const href = normalizeTweetUrl(link.getAttribute('href') || '');
+        if (href !== link.getAttribute('href')) link.setAttribute('href', href);
         // Match /status/1234567890 in the URL
         const match = href.match(/status\/(\d+)/);
         if (!match) return;
         const tweetId = match[1];
 
-        // Avoid re-embedding if already inside an embed
-        if (link.closest('.twitter-tweet')) return;
+        // Avoid re-embedding if already rendered
+        if (link.closest('.twitter-tweet, .tweet-embed-placeholder')) return;
 
         // Replace the link with a placeholder and render the tweet
         const placeholder = document.createElement('div');
-        placeholder.className = 'tweet-embed-placeholder';
+        // Use not-prose to avoid Tailwind Typography styles (like rounded corners on img)
+        placeholder.className = 'tweet-embed-placeholder not-prose';
         link.replaceWith(placeholder);
         try {
-          window.twttr.widgets.createTweet(tweetId, placeholder, { align: 'center', dnt: true });
-        } catch (e) {
-          // If anything fails, fall back to leaving the link as-is
-          console.error('Twitter embed error:', e);
-        }
+          const root = createRoot(placeholder);
+          root.render(<Tweet id={tweetId} />);
+        } catch (_e) {}
       });
 
       // Finally, detect plain-text tweet URLs (not anchors) and embed them
@@ -97,7 +143,8 @@ useEffect(() => {
         let replaced = false;
         html = html.replace(tweetUrlRegex, (_m, id) => {
           replaced = true;
-          return `<div class="tweet-embed-placeholder" data-tweet-id="${id}"></div>`;
+          // Mark placeholder with not-prose to isolate from Typography styles
+          return `<div class="tweet-embed-placeholder not-prose" data-tweet-id="${id}"></div>`;
         });
         if (!replaced) return;
         el.innerHTML = html;
@@ -105,30 +152,36 @@ useEffect(() => {
 
       // Render any placeholders created from plain text
       const placeholders = container.querySelectorAll('.tweet-embed-placeholder[data-tweet-id]');
+      const seen = new Set();
       placeholders.forEach((ph) => {
         const id = ph.getAttribute('data-tweet-id');
         if (!id) return;
-        // Avoid re-embedding if already replaced by an iframe
-        if (ph.querySelector('iframe')) return;
-        try {
-          window.twttr.widgets.createTweet(id, ph, { align: 'center', dnt: true });
-        } catch (e) {
-          console.error('Twitter embed (placeholder) error:', e);
+        if (seen.has(id)) {
+          ph.remove();
+          return;
         }
+        seen.add(id);
+        if (ph.getAttribute('data-rendered') === '1') return;
+        if (ph.querySelector('iframe')) {
+          ph.setAttribute('data-rendered', '1');
+          return;
+        }
+        try {
+          const root = createRoot(ph);
+          root.render(<Tweet id={id} />);
+          ph.setAttribute('data-rendered', '1');
+        } catch (_e) {}
       });
     };
-
-    if (!existing) {
-      const s = document.createElement('script');
-      s.async = true;
-      s.src = 'https://platform.twitter.com/widgets.js';
-      s.onload = loadAndRender;
-      s.onerror = () => console.error('[IndividualBlog] Failed to load Twitter widgets.js');
-      document.body.appendChild(s);
-      console.debug('[IndividualBlog] Appended widgets.js script tag');
-    } else {
-      loadAndRender();
-    }
+    // Initial render
+    loadAndRender();
+    // Observe for DOM changes and re-embed if needed
+    const observer = new MutationObserver(() => schedule(loadAndRender));
+    observer.observe(container, { childList: true, subtree: true });
+    return () => {
+      clearTimeout(debounceTimer);
+      observer.disconnect();
+    };
   }, [blog?.content]);
 
   // Early return blocks must come AFTER all hooks to preserve hook order
@@ -219,7 +272,7 @@ useEffect(() => {
       )}
 
       {/* Content */}
-      <main className="prose prose-gray max-w-3xl mx-auto px-6 py-6 mt-4 text-gray-800 font-default prose-headings:font-title prose-headings:text-gray-900 prose-p:leading-relaxed prose-li:leading-relaxed prose-img:rounded-lg prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl">
+      <main className="prose prose-stone max-w-3xl mx-auto px-6 py-6 mt-4 text-gray-800 font-default prose-headings:font-title prose-headings:text-gray-900 prose-p:leading-relaxed prose-li:leading-relaxed prose-img:rounded-lg prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl">
         <div ref={contentRef} dangerouslySetInnerHTML={{ __html: blog.content }} />
         {blog.tags && (
           <div className="mt-8 text-sm text-gray-600">

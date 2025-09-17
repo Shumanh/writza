@@ -1,10 +1,9 @@
 import { IndividualBlog } from "@/components/blogs/individual-blog";
 
 export default async function BlogPage({ params }) {
-  const { slug } = await   params;  
-  
-  const id = slug.split('-').pop();  
-  
+  const { slug } = params;
+  const id = typeof slug === 'string' ? slug.split('-').pop() : '';
+
   return (
     <div>
       <IndividualBlog id={id} />
