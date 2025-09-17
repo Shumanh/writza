@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import Script from 'next/script';
 
 export default function BlogsLayout({ children }) {
 
@@ -40,6 +41,8 @@ export default function BlogsLayout({ children }) {
 
   return (
     <div className="min-h-screen">
+      {/* Ensure Twitter widgets are available within blogs routes too */}
+      <Script src="https://platform.twitter.com/widgets.js" strategy="afterInteractive" />
       <main>
         {children}
       </main>

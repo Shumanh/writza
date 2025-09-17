@@ -54,11 +54,14 @@ import "@/styles/prosemirror.css";
 import Providers from "@/app/providers";
 import { playfair, montserrat, cal, inter } from "@/styles/fonts";
 import Footer from "@/components/landing/footer";
+import Script from "next/script";
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${montserrat.variable} ${playfair.variable} ${inter.variable} ${cal.variable}`} suppressHydrationWarning>
       <body className="font-default bg-white min-h-screen flex flex-col">
+        {/* Globally load Twitter widgets to ensure availability on blog pages */}
+        <Script src="https://platform.twitter.com/widgets.js" strategy="afterInteractive" />
         <Providers>
           <div className="flex-1 flex flex-col">{children}</div>
           <Footer />

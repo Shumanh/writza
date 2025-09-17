@@ -160,7 +160,12 @@ export const suggestionItems = createSuggestionItems([
     icon: <Twitter size={18} />,
     command: ({ editor, range }) => {
       const tweetLink = prompt("Please enter Twitter Link");
-      const tweetRegex = new RegExp(/^https?:\/\/(www\.)?x\.com\/([a-zA-Z0-9_]{1,15})(\/status\/(\d+))?(\/\S*)?$/);
+      // Accept both twitter.com and x.com status URLs
+      // Examples:
+      // https://twitter.com/username/status/1234567890123456789
+      // https://x.com/username/status/1234567890123456789
+      // with or without www, with optional trailing params
+      const tweetRegex = /^(https?:\/\/)?(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]{1,15}\/status\/(\d+)(?:\/?\S*)?$/;
 
       if (tweetRegex.test(tweetLink)) {
         editor
