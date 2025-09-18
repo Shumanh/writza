@@ -4,12 +4,10 @@ import Footer from "@/components/landing/footer";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       <Navbar/>
-      <main className="flex-1">
-        <div className="w-full">
-          <Hero />
-        </div>
+      <main className="flex-1 flex items-center justify-center">
+        <Hero />
       </main>
       <Footer />
     </div>

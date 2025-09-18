@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import UnifiedRichEditor from "./unified-rich-editor";
 import TagsModal from "@/components/ui/TagsModal";
 
@@ -126,7 +127,9 @@ export default function Create() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex justify-between items-center h-12">
             <div className="flex items-center space-x-6">
-              <h1 className="text-lg font-semibold text-gray-900">OwnTheWeb</h1>
+              <Link href="/" className="text-lg font-semibold text-gray-900 hover:text-gray-700 transition-colors">
+                OwnTheWeb
+              </Link>
               <span className="text-sm text-green-600">{saveStatus}</span>
             </div>
             <div className="flex items-center space-x-3">
