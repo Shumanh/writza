@@ -7,7 +7,7 @@ function Footer() {
 
   return (
     <footer className="border-t bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col items-center justify-center gap-4 sm:gap-6 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center justify-center gap-3 sm:gap-6 text-center">
         <div className="flex items-center gap-6 sm:gap-8 text-primary/80 order-2 sm:order-1">
           <a
             href="https://mail.google.com/mail/?view=cm&fs=1&to=theshumanhere@gmail.com&su=Contact%20from%20OwnTheWeb"
