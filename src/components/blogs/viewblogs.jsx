@@ -114,47 +114,48 @@ export function View() {
     <div className="min-h-screen bg-white font-default">
       {/* Medium-style Header */}
       <header className="bg-white sticky top-0 z-50 border-b border-gray-200">
-        <div className="max-w-[1192px] mx-auto px-4">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-6">
-              <Link href="/" className="text-xl font-bold text-gray-900">
+        <div className="max-w-[1192px] mx-auto px-3 sm:px-4">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <div className="flex items-center space-x-3 sm:space-x-6 flex-1 min-w-0">
+              <Link href="/" className="text-lg sm:text-xl font-bold text-gray-900 truncate">
                 OwnTheWeb
               </Link>
               {loggedIn && (
-                <nav className="hidden md:flex items-center space-x-6">
+                <nav className="flex items-center space-x-3 sm:space-x-6">
                   <Link
                     href="/blogs/view"
-                    className="text-gray-600 hover:text-gray-900 text-sm"
+                    className="text-gray-600 hover:text-gray-900 text-xs sm:text-sm whitespace-nowrap"
                   >
-                    View Blogs
+                    Blogs
                   </Link>
                   <Link
                     href="/blogs/create"
-                    className="text-gray-600 hover:text-gray-900 text-sm"
+                    className="text-gray-600 hover:text-gray-900 text-xs sm:text-sm whitespace-nowrap hidden sm:inline"
                   >
                     Create Blog
                   </Link>
                 </nav>
               )}
             </div>
-            <div className="flex items-center space-x-5">
-              <button className="text-gray-600 hover:text-gray-900">
-                <Search className="h-5 w-5" />
+            <div className="flex items-center space-x-2 sm:space-x-5">
+              <button className="text-gray-600 hover:text-gray-900 p-1">
+                <Search className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
               {loggedIn && (
                 <>
-                  <button className="text-gray-600 hover:text-gray-900">
+                  <button className="text-gray-600 hover:text-gray-900 p-1 hidden sm:block">
                     <Bell className="h-5 w-5" />
                   </button>
                   <Link
                     href="/blogs/create"
-                    className="border border-gray-900 text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full text-sm transition-colors"
+                    className="border border-gray-900 text-gray-900 hover:bg-gray-50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm transition-colors whitespace-nowrap"
                   >
-                    Write
+                    <span className="sm:hidden">+</span>
+                    <span className="hidden sm:inline">Write</span>
                   </Link>
                 </>
               )}
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-medium">
                 {userInitial || 'S'}
               </div>
             </div>
@@ -163,11 +164,11 @@ export function View() {
       </header>
 
       {/* Main Content - Medium Style */}
-      <main className="max-w-[900px] mx-auto px-4 py-10">
+      <main className="max-w-[900px] mx-auto px-3 sm:px-4 py-6 sm:py-10">
         {/* Simplified header */}
-        <div className="border-b border-gray-200 mb-8">
+        <div className="border-b border-gray-200 mb-6 sm:mb-8">
           <div className="flex space-x-8">
-            <button className="text-sm text-gray-900 font-medium border-b border-gray-900 pb-4 px-1">
+            <button className="text-sm text-gray-900 font-medium border-b border-gray-900 pb-3 sm:pb-4 px-1">
               For you
             </button>
           </div>
@@ -200,8 +201,8 @@ export function View() {
         ) : (
           <div className="divide-y divide-gray-200">
             {blogs.map((blog) => (
-              <article key={blog._id} className="py-8">
-                <div className="flex items-start gap-8">
+              <article key={blog._id} className="py-6 sm:py-8">
+                <div className="flex items-start gap-4 sm:gap-8">
                   {/* Text Column */}
                   <div className="flex-1 min-w-0">
                     {/* Author without profile image */}
@@ -235,7 +236,7 @@ export function View() {
 
                     {/* Title and excerpt */}
                     <Link href={`/blogs/${blog.slug}`} className="group block">
-                      <h2 className="text-lg font-bold font-title text-gray-900 group-hover:text-gray-800 mb-1 leading-tight">
+                      <h2 className="text-base sm:text-lg font-bold font-title text-gray-900 group-hover:text-gray-800 mb-1 leading-tight">
                         {blog.title}
                       </h2>
                       {(() => {
@@ -248,7 +249,7 @@ export function View() {
                         const text = typeof main === 'string' ? main : '';
                         const trimmed = text.length > 0 ? text : '';
                         return trimmed ? (
-                          <p className="text-gray-600 text-sm leading-snug line-clamp-2 overflow-hidden">{trimmed}</p>
+                          <p className="text-gray-600 text-xs sm:text-sm leading-snug line-clamp-2 overflow-hidden">{trimmed}</p>
                         ) : null;
                       })()}
                     </Link>
@@ -317,31 +318,31 @@ export function View() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3 relative">
-                        <button className="text-gray-400 hover:text-gray-600" aria-label="Bookmark">
-                          <Bookmark className="h-5 w-5" />
+                      <div className="flex items-center gap-2 sm:gap-3 relative">
+                        <button className="text-gray-400 hover:text-gray-600 p-1" aria-label="Bookmark">
+                          <Bookmark className="h-4 w-4 sm:h-5 sm:w-5" />
                         </button>
                         {(loggedIn && String((blog.author && (blog.author._id || blog.author)) || '') === String(currentUser?.id)) && (
                           <>
                             <button
-                              className="text-gray-400 hover:text-gray-600"
+                              className="text-gray-400 hover:text-gray-600 p-1 touch-manipulation"
                               aria-label="More"
                               onClick={() => toggleMenu(blog._id)}
                             >
-                              <MoreHorizontal className="h-5 w-5" />
+                              <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
                             </button>
                             {menuOpenId === blog._id && (
-                              <div className="absolute right-0 top-8 z-10 w-36 rounded-md border border-gray-200 bg-white shadow-md py-1">
+                              <div className="absolute right-0 top-8 z-20 w-32 sm:w-36 rounded-md border border-gray-200 bg-white shadow-lg py-1">
                                 <Link
                                   href={`/blogs/update/${blog._id}`}
-                                  className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                  className="block w-full text-left px-3 py-2.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 touch-manipulation"
                                   onClick={() => setMenuOpenId(null)}
                                 >
                                   Edit
                                 </Link>
                                 <button
                                   type="button"
-                                  className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                  className="block w-full text-left px-3 py-2.5 sm:py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 touch-manipulation"
                                   onClick={() => openDeleteModal(blog._id)}
                                 >
                                   Delete

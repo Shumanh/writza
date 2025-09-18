@@ -175,16 +175,44 @@ export function ChatPage() {
       <div className="w-full max-w-2xl sm:max-w-3xl mx-auto">
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         {/* Header */}
-        <div className="flex items-center justify-between border-b bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-4 text-white">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-sm font-semibold">
+        <div className="flex items-center justify-between border-b bg-gradient-to-r from-blue-600 to-indigo-600 px-3 sm:px-5 py-3 sm:py-4 text-white">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/20 text-sm font-semibold">
               C
             </div>
-            <div>
-              <h1 className="text-base font-semibold leading-5">Community Chat</h1>
-              <p className="text-xs text-white/80">Connect with the community in real-time</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-sm sm:text-base font-semibold leading-5 truncate">Community Chat</h1>
+              <p className="text-xs text-white/80 hidden sm:block">Connect with the community in real-time</p>
             </div>
           </div>
+          
+          {/* Mobile Actions */}
+          <div className="flex items-center gap-1 sm:hidden">
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="rounded-md bg-white/15 px-2 py-1.5 text-xs font-medium text-white hover:bg-white/25"
+              title="Go to Home"
+            >
+              Home
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  const key = currentUser ? `chatClearedAt:${currentUser.id}` : 'chatClearedAt';
+                  window.localStorage.setItem(key, new Date().toISOString());
+                } catch (_e) {}
+                setMessages([]);
+              }}
+              className="rounded-md bg-white/15 px-2 py-1.5 text-xs font-medium text-white hover:bg-white/25"
+              title="Clear chat (local)"
+            >
+              Clear
+            </button>
+          </div>
+
+          {/* Desktop Actions */}
           <div className="hidden items-center gap-3 sm:flex">
             <button
               type="button"
@@ -220,7 +248,7 @@ export function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="h-[540px] overflow-y-auto bg-gray-50 px-3 py-4 sm:px-5" id="messages-scroll-container" onClick={() => setSelectedMessageId(null)}>
+        <div className="h-[450px] sm:h-[540px] overflow-y-auto bg-gray-50 px-3 py-4 sm:px-5" id="messages-scroll-container" onClick={() => setSelectedMessageId(null)}>
           {messages.length === 0 ? (
             <div className="mt-20 text-center text-gray-500">
               <p>No messages yet. Be the first to say hi 👋</p>
@@ -233,14 +261,14 @@ export function ChatPage() {
                 const isSelected = isMine && selectedMessageId === thisId;
                 return (
                   <div key={thisId} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`flex max-w-[85%] items-end gap-2 sm:max-w-[70%]`}>
+                    <div className={`flex max-w-[90%] sm:max-w-[85%] md:max-w-[70%] items-end gap-2`}>
                       {!isMine && (
                         <div className="hidden h-8 w-8 select-none items-center justify-center rounded-full bg-blue-500 text-white sm:flex">
                           {m.username?.charAt(0)?.toUpperCase() || 'U'}
                         </div>
                       )}
                       <div
-                        className={`group rounded-2xl px-3 py-2 shadow-sm ${isMine ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-900 border rounded-bl-none'}`}
+                        className={`group rounded-2xl px-3 py-2 shadow-sm cursor-pointer touch-manipulation ${isMine ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-900 border rounded-bl-none'}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (isMine) {
@@ -257,11 +285,12 @@ export function ChatPage() {
                             <button
                               type="button"
                               onClick={() => deleteMessage(thisId)}
-                              className={`ml-2 hidden rounded px-2 py-0.5 text-[10px] font-medium transition sm:inline-block ${isMine ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
+                              className={`ml-1 sm:ml-2 inline-block rounded px-1.5 sm:px-2 py-0.5 text-[10px] font-medium transition ${isMine ? 'bg-blue-500 hover:bg-blue-400 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
                               aria-label="Delete message"
                               title="Delete"
                             >
-                              Delete
+                              <span className="hidden sm:inline">Delete</span>
+                              <span className="sm:hidden">×</span>
                             </button>
                           )}
                         </div>
