@@ -242,17 +242,7 @@ export function UpdateBlogForm({ id }) {
           {contentChars}/100 chars
         </div>
 
-        {/* Update button at bottom for accessibility */}
-        <div className="mt-6">
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={updating || contentChars < 100}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {updating ? "Updating..." : "Update Blog"}
-          </button>
-        </div>
+        {/* Bottom update button removed; header button remains for submitting */}
       </main>
 
       {/* Toasts */}
