@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import UnifiedRichEditor from "./unified-rich-editor";
+import TagsModal from "@/components/ui/TagsModal";
 
 export function UpdateBlogForm({ id }) {
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ export function UpdateBlogForm({ id }) {
   const [contentHtml, setContentHtml] = useState("");
   const [contentPlain, setContentPlain] = useState("");
   const [tagsPlain, setTagsPlain] = useState("");
+  const [tagsModalOpen, setTagsModalOpen] = useState(false);
   const [contentChars, setContentChars] = useState(0);
 
   const router = useRouter();
@@ -106,6 +108,21 @@ export function UpdateBlogForm({ id }) {
     }
   }
 
+  // Called when the TagsModal confirms tags for update flow
+  async function submitWithTags(finalTags) {
+    // finalTags is a string of comma-separated tags; set into tagsPlain then proceed
+    const tagsToUse = (finalTags ?? tagsPlain).trim();
+    setTagsPlain(tagsToUse);
+    // Update localStorage so behavior is consistent
+    try {
+      window.localStorage.setItem(`blog-update-tags-${id}`, tagsToUse);
+    } catch (e) {}
+
+    // Call handleSubmit without an event; create a synthetic event-like object
+    // handleSubmit expects an event, but it only calls e.preventDefault(); so we can pass a minimal object
+    await handleSubmit({ preventDefault() {} });
+  }
+
   if (loading) return <div>Loading blog data...</div>;
   if (errors.general) {
     return (
@@ -131,7 +148,11 @@ export function UpdateBlogForm({ id }) {
             <div className="flex items-center space-x-3">
               <button
                 type="button"
-                onClick={handleSubmit}
+                onClick={(e) => {
+                  // Open tags modal before submitting updates (so user confirms tags)
+                  if (e) e.preventDefault();
+                  setTagsModalOpen(true);
+                }}
                 disabled={updating || contentChars < 100}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -291,6 +312,15 @@ export function UpdateBlogForm({ id }) {
           </div>
         </div>
       )}
+
+      {/* Tags Modal for confirming tags before updating */}
+      <TagsModal
+        open={tagsModalOpen}
+        initialTags={tagsPlain}
+        loading={updating}
+        onConfirm={(val) => submitWithTags(val)}
+        onCancel={() => setTagsModalOpen(false)}
+      />
     </div>
   );
 }
