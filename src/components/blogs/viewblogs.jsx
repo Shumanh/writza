@@ -52,20 +52,20 @@ export function View() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const response = await fetch('/api/auth/me', { method: 'GET', credentials: 'include' });
+        const response = await fetch("/api/auth/me", { method: "GET", credentials: "include" });
         const data = await response.json();
         const ok = !!data.loggedIn;
         setLoggedIn(ok);
         if (ok) {
           setCurrentUser({ id: data.id, username: data.username, role: data.role });
-          const seed = data.username || data.id || '';
-          setUserInitial(String(seed).charAt(0).toUpperCase() || 'U');
+          const seed = data.username || data.id || "";
+          setUserInitial(String(seed).charAt(0).toUpperCase() || "U");
         } else {
           setCurrentUser(null);
           setUserInitial(null);
         }
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error("Auth check error:", error);
         setLoggedIn(false);
         setCurrentUser(null);
         setUserInitial(null);
@@ -156,7 +156,7 @@ export function View() {
                 </>
               )}
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-medium">
-                {userInitial || 'S'}
+                {userInitial || "S"}
               </div>
             </div>
           </div>
@@ -179,15 +179,19 @@ export function View() {
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                />
               </svg>
             </div>
             <h3 className="text-xl font-medium text-gray-900 mb-2">No blog posts yet</h3>
             <p className="text-gray-600 mb-6">
               {loggedIn
                 ? "Start creating your first blog post to share your thoughts with the world."
-                : "Check back soon for new content."
-              }
+                : "Check back soon for new content."}
             </p>
             {loggedIn && (
               <Link
@@ -210,24 +214,25 @@ export function View() {
                       <span className="font-medium text-gray-900">
                         {(() => {
                           const a = blog.author;
-                          if (typeof a === 'string') return a;
-                          return a?.name || a?.username || 'Unknown';
+                          if (typeof a === "string") return a;
+                          return a?.name || a?.username || "Unknown";
                         })()}
                       </span>
                       <span className="text-gray-500">·</span>
                       <time dateTime={blog.createdAt} className="text-gray-500">
-                        {new Date(blog.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric'
+                        {new Date(blog.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
                         })}
                       </time>
                       {blog.category && (
                         <>
                           <span className="text-gray-500">·</span>
                           <span className="text-gray-500">
-                            In {(() => {
+                            In{" "}
+                            {(() => {
                               const c = blog.category;
-                              return typeof c === 'string' ? c : (c?.name || '');
+                              return typeof c === "string" ? c : c?.name || "";
                             })()}
                           </span>
                         </>
@@ -245,11 +250,13 @@ export function View() {
                           blog.descriptionPlain ||
                           blog.description ||
                           blog.excerpt ||
-                          (typeof blog.contentPlain === 'string' ? blog.contentPlain : '');
-                        const text = typeof main === 'string' ? main : '';
-                        const trimmed = text.length > 0 ? text : '';
+                          (typeof blog.contentPlain === "string" ? blog.contentPlain : "");
+                        const text = typeof main === "string" ? main : "";
+                        const trimmed = text.length > 0 ? text : "";
                         return trimmed ? (
-                          <p className="text-gray-600 text-xs sm:text-sm leading-snug line-clamp-2 overflow-hidden">{trimmed}</p>
+                          <p className="text-gray-600 text-xs sm:text-sm leading-snug line-clamp-2 overflow-hidden">
+                            {trimmed}
+                          </p>
                         ) : null;
                       })()}
                     </Link>
@@ -260,27 +267,37 @@ export function View() {
                         {/* Read time estimate */}
                         <span className="text-gray-500">
                           {(() => {
-                            // Calculate read time based on content length
-                            // Average reading speed: 200 words per minute
-                            // Average word length: 5 characters
-                            const contentLength = blog.contentPlain?.length || 0;
-                            const wordCount = contentLength / 5;
-                            const readTimeMinutes = wordCount / 200;
-                            // Ensure minimum 1 minute, maximum realistic time
-                            return Math.max(1, Math.min(30, Math.ceil(readTimeMinutes))) + ' min read';
+                            // Calculate read time using actual word count when possible
+                            // Fallback: if contentPlain isn't available, try stripping HTML from blog.content
+                            let text = "";
+                            if (typeof blog.contentPlain === "string" && blog.contentPlain.trim()) {
+                              text = blog.contentPlain.trim();
+                            } else if (typeof blog.content === "string" && blog.content.trim()) {
+                              // naive HTML strip
+                              text = blog.content.replace(/<[^>]+>/g, "").trim();
+                            }
+
+                            const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+                            const wpm = 200; // words per minute
+                            const minutes = words > 0 ? Math.ceil(words / wpm) : 1;
+                            // keep between 1 and 30 minutes
+                            return Math.max(1, Math.min(30, minutes)) + " min read";
                           })()}
                         </span>
-                        
+
                         {/* Tags */}
                         {(() => {
                           const t = blog.tags;
                           const tagsList = Array.isArray(t)
                             ? t.filter(Boolean).map(String)
-                            : typeof t === 'string'
-                              ? t.split(',').map(s => s.trim()).filter(Boolean)
+                            : typeof t === "string"
+                              ? t
+                                  .split(",")
+                                  .map((s) => s.trim())
+                                  .filter(Boolean)
                               : Array.isArray(t?.items)
                                 ? t.items.filter(Boolean).map(String)
-                                : (t && typeof t === 'object' && t.name)
+                                : t && typeof t === "object" && t.name
                                   ? [String(t.name)]
                                   : [];
                           return tagsList.length ? (
@@ -296,21 +313,21 @@ export function View() {
                             </div>
                           ) : null;
                         })()}
-                        
+
                         {/* Stats */}
-                        {typeof blog.views === 'number' && (
+                        {typeof blog.views === "number" && (
                           <span className="inline-flex items-center gap-1">
                             <Eye className="h-4 w-4" />
-                            {Intl.NumberFormat('en-US', { notation: 'compact' }).format(blog.views)}
+                            {Intl.NumberFormat("en-US", { notation: "compact" }).format(blog.views)}
                           </span>
                         )}
-                        {typeof blog.likesCount === 'number' && (
+                        {typeof blog.likesCount === "number" && (
                           <span className="inline-flex items-center gap-1">
                             <Heart className="h-4 w-4 text-blue-600 fill-blue-600" />
-                            {Intl.NumberFormat('en-US', { notation: 'compact' }).format(blog.likesCount)}
+                            {Intl.NumberFormat("en-US", { notation: "compact" }).format(blog.likesCount)}
                           </span>
                         )}
-                        {typeof blog.commentsCount === 'number' && (
+                        {typeof blog.commentsCount === "number" && (
                           <span className="inline-flex items-center gap-1">
                             <MessageSquare className="h-4 w-4" />
                             {blog.commentsCount}
@@ -322,35 +339,37 @@ export function View() {
                         <button className="text-gray-400 hover:text-gray-600 p-1" aria-label="Bookmark">
                           <Bookmark className="h-4 w-4 sm:h-5 sm:w-5" />
                         </button>
-                        {(loggedIn && String((blog.author && (blog.author._id || blog.author)) || '') === String(currentUser?.id)) && (
-                          <>
-                            <button
-                              className="text-gray-400 hover:text-gray-600 p-1 touch-manipulation"
-                              aria-label="More"
-                              onClick={() => toggleMenu(blog._id)}
-                            >
-                              <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
-                            </button>
-                            {menuOpenId === blog._id && (
-                              <div className="absolute right-0 top-8 z-20 w-32 sm:w-36 rounded-md border border-gray-200 bg-white shadow-lg py-1">
-                                <Link
-                                  href={`/blogs/update/${blog._id}`}
-                                  className="block w-full text-left px-3 py-2.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 touch-manipulation"
-                                  onClick={() => setMenuOpenId(null)}
-                                >
-                                  Edit
-                                </Link>
-                                <button
-                                  type="button"
-                                  className="block w-full text-left px-3 py-2.5 sm:py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 touch-manipulation"
-                                  onClick={() => openDeleteModal(blog._id)}
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            )}
-                          </>
-                        )}
+                        {loggedIn &&
+                          String((blog.author && (blog.author._id || blog.author)) || "") ===
+                            String(currentUser?.id) && (
+                            <>
+                              <button
+                                className="text-gray-400 hover:text-gray-600 p-1 touch-manipulation"
+                                aria-label="More"
+                                onClick={() => toggleMenu(blog._id)}
+                              >
+                                <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
+                              </button>
+                              {menuOpenId === blog._id && (
+                                <div className="absolute right-0 top-8 z-20 w-32 sm:w-36 rounded-md border border-gray-200 bg-white shadow-lg py-1">
+                                  <Link
+                                    href={`/blogs/update/${blog._id}`}
+                                    className="block w-full text-left px-3 py-2.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 touch-manipulation"
+                                    onClick={() => setMenuOpenId(null)}
+                                  >
+                                    Edit
+                                  </Link>
+                                  <button
+                                    type="button"
+                                    className="block w-full text-left px-3 py-2.5 sm:py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 touch-manipulation"
+                                    onClick={() => openDeleteModal(blog._id)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              )}
+                            </>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -377,4 +396,4 @@ export function View() {
       />
     </div>
   );
-};
+}

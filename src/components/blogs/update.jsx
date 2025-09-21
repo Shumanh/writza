@@ -31,8 +31,10 @@ export function UpdateBlogForm({ id }) {
           setTitlePlain(b.title || "");
           setDescriptionPlain(b.shortDescription || "");
           setContentHtml(b.content || "<p></p>");
-          setContentPlain(typeof b.contentPlain === 'string' ? b.contentPlain : "");
-          setTagsPlain(Array.isArray(b.tags) ? b.tags.join(", ") : (typeof b.tags === 'string' ? b.tags : (b.tags?.name || "")));
+          setContentPlain(typeof b.contentPlain === "string" ? b.contentPlain : "");
+          setTagsPlain(
+            Array.isArray(b.tags) ? b.tags.join(", ") : typeof b.tags === "string" ? b.tags : b.tags?.name || ""
+          );
 
           // Restore any saved draft for this id
           const savedTitle = window.localStorage.getItem(`blog-update-title-${id}`);
@@ -109,7 +111,9 @@ export function UpdateBlogForm({ id }) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-10">
         <div className="text-red-600 mb-4">Error: {errors.general}</div>
-        <a href="/blogs/view" className="text-blue-600 hover:underline">← Back to Blogs</a>
+        <a href="/blogs/view" className="text-blue-600 hover:underline">
+          ← Back to Blogs
+        </a>
       </div>
     );
   }
@@ -185,7 +189,7 @@ export function UpdateBlogForm({ id }) {
             <UnifiedRichEditor
               fieldType="content"
               placeholder="Edit your story..."
-              initialValue={contentHtml || '<p></p>'}
+              initialValue={contentHtml || "<p></p>"}
               onChange={(html, plain, wordCount) => {
                 setContentHtml(html);
                 setContentPlain(plain);
@@ -224,12 +228,8 @@ export function UpdateBlogForm({ id }) {
           {/* Validation toast-like indicator */}
           {(errors.title || errors.content || errors.shortDescription) && (
             <div className="fixed bottom-20 right-6 bg-red-50 border border-red-200 rounded-lg p-3 shadow-sm max-w-xs">
-              {errors.title && (
-                <p className="text-sm text-red-600 mb-1">Title: {errors.title[0]}</p>
-              )}
-              {errors.content && (
-                <p className="text-sm text-red-600">Content: {errors.content[0]}</p>
-              )}
+              {errors.title && <p className="text-sm text-red-600 mb-1">Title: {errors.title[0]}</p>}
+              {errors.content && <p className="text-sm text-red-600">Content: {errors.content[0]}</p>}
               {errors.shortDescription && (
                 <p className="text-sm text-red-600 mt-1">Short Description: {errors.shortDescription[0]}</p>
               )}
@@ -252,7 +252,12 @@ export function UpdateBlogForm({ id }) {
             <div className="flex items-start">
               <div className="flex-shrink-0">
                 <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
                 </svg>
               </div>
               <div className="ml-3 w-0 flex-1 pt-0.5">
@@ -270,7 +275,12 @@ export function UpdateBlogForm({ id }) {
             <div className="flex items-start">
               <div className="flex-shrink-0">
                 <svg className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div className="ml-3 w-0 flex-1 pt-0.5">
