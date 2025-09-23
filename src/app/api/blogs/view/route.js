@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db/mongodb";
 import Blog from "@/models/Blog";
+import View from "@/models/View";
 import {getUserFromCookies} from '@/lib/auth/cookies'
 import User from "@/models/User";
 
@@ -32,7 +33,6 @@ export async function GET(request) {
                 );
             }
 
-
             return NextResponse.json({
                 error: false,
                data : blog
@@ -63,11 +63,23 @@ export async function POST(request) {
         if (!id) {
             return NextResponse.json({ error: true, message: 'Missing blog id' }, { status: 400 });
         }
-        const updated = await Blog.findByIdAndUpdate(
-            id,
-            { $inc: { views: 1 } },
-            { new: true, runValidators: true }
-        ).select('views');
+        const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.ip || '0.0.0.0';
+        const userAgent = request.headers.get('user-agent') || '';
+
+        // Check if this IP viewed recently (e.g., last 24h) to avoid multiple counts
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const already = await View.findOne({ blog: id, ip, createdAt: { $gte: since } }).select('_id');
+        let updated;
+        if (!already) {
+            await View.create({ blog: id, ip, userAgent });
+            updated = await Blog.findByIdAndUpdate(
+                id,
+                { $inc: { views: 1 } },
+                { new: true, runValidators: true }
+            ).select('views');
+        } else {
+            updated = await Blog.findById(id).select('views');
+        }
         if (!updated) {
             return NextResponse.json({ error: true, message: 'Blog not found' }, { status: 404 });
         }
