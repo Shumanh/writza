@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, MessageSquare, Bookmark, MoreHorizontal, Search, Bell, Heart } from "lucide-react";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import { AppContext } from "@/app/providers";
 
 export function View() {
+  const { font } = useContext(AppContext);
   const [errors, setErrors] = useState("");
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ export function View() {
   const [menuOpenId, setMenuOpenId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [userInitial, setUserInitial] = useState(null);
+  const [userInitial, setUserInitial] = useState("D");
   const router = useRouter();
 
   function toggleMenu(id) {
@@ -59,16 +61,17 @@ export function View() {
         if (ok) {
           setCurrentUser({ id: data.id, username: data.username, role: data.role });
           const seed = data.username || data.id || "";
-          setUserInitial(String(seed).charAt(0).toUpperCase() || "U");
+          const initial = String(seed).trim().charAt(0).toUpperCase();
+          setUserInitial(initial || "D");
         } else {
           setCurrentUser(null);
-          setUserInitial(null);
+          setUserInitial("D");
         }
       } catch (error) {
         console.error("Auth check error:", error);
         setLoggedIn(false);
         setCurrentUser(null);
-        setUserInitial(null);
+        setUserInitial("D");
       } finally {
         setAuthLoading(false);
       }
@@ -91,6 +94,14 @@ export function View() {
     fetchBlogs();
   }, []);
 
+  function handleWriteClick() {
+    if (loggedIn) {
+      router.push("/blogs/create");
+    } else {
+      router.push("/auth/login");
+    }
+  }
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -111,70 +122,78 @@ export function View() {
   }
 
   return (
-    <div className="min-h-screen bg-white font-default">
-      {/* Medium-style Header */}
+    <div className={`min-h-screen bg-white text-gray-900 font-blog ${font}`}>
       <header className="bg-white sticky top-0 z-50 border-b border-gray-200">
-        <div className="max-w-[1192px] mx-auto px-3 sm:px-4">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center space-x-3 sm:space-x-6 flex-1 min-w-0">
-              <Link href="/" className="text-lg sm:text-xl font-bold text-gray-900 truncate">
-                OwnTheWeb
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex items-center gap-6 text-sm lowercase tracking-wide text-gray-700">
+            <Link href="/" className="font-semibold text-gray-900 transition-colors duration-150 hover:text-gray-700">
+              devsg
+            </Link>
+            <Link href="/blogs/view" className="transition-colors duration-150 hover:text-gray-900">
+              blogs
+            </Link>
+            {loggedIn && (
+              <Link href="/blogs/create" className="transition-colors duration-150 hover:text-gray-900">
+                create blog
               </Link>
-              {loggedIn && (
-                <nav className="flex items-center space-x-3 sm:space-x-6">
-                  <Link
-                    href="/blogs/view"
-                    className="text-gray-600 hover:text-gray-900 text-xs sm:text-sm whitespace-nowrap"
-                  >
-                    Blogs
-                  </Link>
-                  <Link
-                    href="/blogs/create"
-                    className="text-gray-600 hover:text-gray-900 text-xs sm:text-sm whitespace-nowrap hidden sm:inline"
-                  >
-                    Create Blog
-                  </Link>
-                </nav>
-              )}
-            </div>
-            <div className="flex items-center space-x-2 sm:space-x-5">
-              <button className="text-gray-600 hover:text-gray-900 p-1">
-                <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 text-gray-500">
+            <button
+              type="button"
+              className="p-2 transition-colors hover:text-gray-800"
+              aria-label="Search"
+              onClick={() => router.push("/blogs/view")}
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            {loggedIn && (
+              <button
+                type="button"
+                className="hidden sm:flex p-2 transition-colors hover:text-gray-800"
+                aria-label="Notifications"
+              >
+                <Bell className="h-4 w-4" />
               </button>
-              {loggedIn && (
-                <>
-                  <button className="text-gray-600 hover:text-gray-900 p-1 hidden sm:block">
-                    <Bell className="h-5 w-5" />
-                  </button>
-                  <Link
-                    href="/blogs/create"
-                    className="border border-gray-900 text-gray-900 hover:bg-gray-50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm transition-colors whitespace-nowrap"
-                  >
-                    <span className="sm:hidden">+</span>
-                    <span className="hidden sm:inline">Write</span>
-                  </Link>
-                </>
-              )}
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-medium">
-                {userInitial || "S"}
-              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleWriteClick}
+              className="rounded-full border border-gray-900 px-4 py-1.5 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50"
+            >
+              {loggedIn ? "Write" : "Log in"}
+            </button>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">
+              {userInitial}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content - Medium Style */}
-      <main className="max-w-[900px] mx-auto px-3 sm:px-4 py-6 sm:py-10">
-        {/* Simplified header */}
-        <div className="border-b border-gray-200 mb-6 sm:mb-8">
-          <div className="flex space-x-8">
-            <button className="text-sm text-gray-900 font-medium border-b border-gray-900 pb-3 sm:pb-4 px-1">
-              For you
-            </button>
-          </div>
-        </div>
+      <main className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-6 py-16">
+        <header className="space-y-4">
+          <p className="text-sm uppercase tracking-[0.25em] text-gray-500">recent writing</p>
+          <h1 className="text-2xl sm:text-[1.65rem] font-semibold tracking-tight text-gray-900 font-blog uppercase">Thoughts on engineering, systems, and product</h1>
+          {loggedIn && (
+            <div className="flex items-center gap-3 text-sm">
+              <Link
+                href="/blogs/create"
+                className="rounded-full border border-gray-900 px-4 py-1.5 text-gray-900 transition-colors hover:bg-gray-50"
+              >
+                Write a post
+              </Link>
+              <button
+                type="button"
+                onClick={() => router.push("/auth/login")}
+                className="text-gray-500 underline-offset-4 transition-colors hover:text-gray-700 hover:underline"
+              >
+                Switch account
+              </button>
+            </div>
+          )}
+        </header>
 
-        {/* Blog Posts List (Medium-style) */}
         {blogs.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
@@ -203,118 +222,83 @@ export function View() {
             )}
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
-            {blogs.map((blog) => (
-              <article key={blog._id} className="py-6 sm:py-8">
-                <div className="flex items-start gap-4 sm:gap-8">
-                  {/* Text Column */}
-                  <div className="flex-1 min-w-0">
-                    {/* Author without profile image */}
-                    <div className="flex items-center gap-2 text-sm mb-2">
-                      <span className="font-medium text-gray-900">
+          <div className="flex flex-col">
+            {blogs.map((blog, index) => {
+              const isOwner =
+                loggedIn && String((blog.author && (blog.author._id || blog.author)) || "") === String(currentUser?.id);
+
+              const mainText = (() => {
+                const main =
+                  blog.shortDescription ||
+                  blog.descriptionPlain ||
+                  blog.description ||
+                  blog.excerpt ||
+                  (typeof blog.contentPlain === "string" ? blog.contentPlain : "");
+                return typeof main === "string" ? main : "";
+              })();
+
+              let readTime = "1 min read";
+              if (mainText) {
+                const words = mainText.split(/\s+/).filter(Boolean).length;
+                const minutes = Math.max(1, Math.min(30, Math.ceil(words / 200)));
+                readTime = `${minutes} min read`;
+              }
+
+              const tagsList = (() => {
+                const t = blog.tags;
+                if (Array.isArray(t)) return t.filter(Boolean).map(String);
+                if (typeof t === "string")
+                  return t
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean);
+                if (Array.isArray(t?.items)) return t.items.filter(Boolean).map(String);
+                if (t && typeof t === "object" && t.name) return [String(t.name)];
+                return [];
+              })();
+
+              return (
+                <article
+                  key={blog._id}
+                  className={`border-b border-gray-200 py-10 first:pt-0 ${index === blogs.length - 1 ? "last:border-b-0" : ""}`}
+                >
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                      <span>
                         {(() => {
                           const a = blog.author;
                           if (typeof a === "string") return a;
                           return a?.name || a?.username || "Unknown";
                         })()}
                       </span>
-                      <span className="text-gray-500">·</span>
-                      <time dateTime={blog.createdAt} className="text-gray-500">
-                        {new Date(blog.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
+                      <span aria-hidden>·</span>
+                      <time dateTime={blog.createdAt}>
+                        {new Date(blog.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                       </time>
-                      {blog.category && (
-                        <>
-                          <span className="text-gray-500">·</span>
-                          <span className="text-gray-500">
-                            In{" "}
-                            {(() => {
-                              const c = blog.category;
-                              return typeof c === "string" ? c : c?.name || "";
-                            })()}
-                          </span>
-                        </>
-                      )}
+                      <span aria-hidden>·</span>
+                      <span>{readTime}</span>
                     </div>
 
-                    {/* Title and excerpt */}
-                    <Link href={`/blogs/${blog.slug}`} className="group block">
-                      <h2 className="text-base sm:text-lg font-bold font-title text-gray-900 group-hover:text-gray-800 mb-1 leading-tight">
+                    <Link href={`/blogs/${blog.slug}`} className="group inline-flex flex-col gap-3">
+                      <h2 className="text-2xl font-semibold tracking-tight transition-colors group-hover:text-gray-700 font-blog">
                         {blog.title}
                       </h2>
-                      {(() => {
-                        const main =
-                          blog.shortDescription ||
-                          blog.descriptionPlain ||
-                          blog.description ||
-                          blog.excerpt ||
-                          (typeof blog.contentPlain === "string" ? blog.contentPlain : "");
-                        const text = typeof main === "string" ? main : "";
-                        const trimmed = text.length > 0 ? text : "";
-                        return trimmed ? (
-                          <p className="text-gray-600 text-xs sm:text-sm leading-snug line-clamp-2 overflow-hidden">
-                            {trimmed}
-                          </p>
-                        ) : null;
-                      })()}
+                      {mainText && (
+                        <p className="max-w-3xl text-base text-gray-500 line-clamp-2">{mainText}</p>
+                      )}
                     </Link>
 
-                    {/* Meta and actions row - Medium style */}
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center gap-3 text-sm text-gray-500">
-                        {/* Read time estimate */}
-                        <span className="text-gray-500">
-                          {(() => {
-                            // Calculate read time using actual word count when possible
-                            // Fallback: if contentPlain isn't available, try stripping HTML from blog.content
-                            let text = "";
-                            if (typeof blog.contentPlain === "string" && blog.contentPlain.trim()) {
-                              text = blog.contentPlain.trim();
-                            } else if (typeof blog.content === "string" && blog.content.trim()) {
-                              // naive HTML strip
-                              text = blog.content.replace(/<[^>]+>/g, "").trim();
-                            }
+                    {tagsList.length ? (
+                      <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-gray-400">
+                        {tagsList.slice(0, 3).map((tag, idx) => (
+                          <span key={`${blog._id}-tag-${idx}`}>{tag}</span>
+                        ))}
+                      </div>
+                    ) : null}
 
-                            const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-                            const wpm = 200; // words per minute
-                            const minutes = words > 0 ? Math.ceil(words / wpm) : 1;
-                            // keep between 1 and 30 minutes
-                            return Math.max(1, Math.min(30, minutes)) + " min read";
-                          })()}
-                        </span>
-
-                        {/* Tags */}
-                        {(() => {
-                          const t = blog.tags;
-                          const tagsList = Array.isArray(t)
-                            ? t.filter(Boolean).map(String)
-                            : typeof t === "string"
-                              ? t
-                                  .split(",")
-                                  .map((s) => s.trim())
-                                  .filter(Boolean)
-                              : Array.isArray(t?.items)
-                                ? t.items.filter(Boolean).map(String)
-                                : t && typeof t === "object" && t.name
-                                  ? [String(t.name)]
-                                  : [];
-                          return tagsList.length ? (
-                            <div className="flex flex-wrap items-center gap-2">
-                              {tagsList.slice(0, 3).map((tag, idx) => (
-                                <span
-                                  key={`${blog._id}-tag-${idx}`}
-                                  className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          ) : null;
-                        })()}
-
-                        {/* Stats */}
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span>{readTime}</span>
                         {typeof blog.views === "number" && (
                           <span className="inline-flex items-center gap-1">
                             <Eye className="h-4 w-4" />
@@ -323,7 +307,7 @@ export function View() {
                         )}
                         {typeof blog.likesCount === "number" && (
                           <span className="inline-flex items-center gap-1">
-                            <Heart className="h-4 w-4 text-blue-600 fill-blue-600" />
+                            <Heart className="h-4 w-4 text-blue-600" />
                             {Intl.NumberFormat("en-US", { notation: "compact" }).format(blog.likesCount)}
                           </span>
                         )}
@@ -335,49 +319,45 @@ export function View() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 sm:gap-3 relative">
-                        <button className="text-gray-400 hover:text-gray-600 p-1" aria-label="Bookmark">
-                          <Bookmark className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <div className="relative flex items-center gap-3 text-gray-400">
+                        <button className="p-1 transition-colors hover:text-gray-600" aria-label="Bookmark">
+                          <Bookmark className="h-4 w-4" />
                         </button>
-                        {loggedIn &&
-                          String((blog.author && (blog.author._id || blog.author)) || "") ===
-                            String(currentUser?.id) && (
-                            <>
-                              <button
-                                className="text-gray-400 hover:text-gray-600 p-1 touch-manipulation"
-                                aria-label="More"
-                                onClick={() => toggleMenu(blog._id)}
-                              >
-                                <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
-                              </button>
-                              {menuOpenId === blog._id && (
-                                <div className="absolute right-0 top-8 z-20 w-32 sm:w-36 rounded-md border border-gray-200 bg-white shadow-lg py-1">
-                                  <Link
-                                    href={`/blogs/update/${blog._id}`}
-                                    className="block w-full text-left px-3 py-2.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 touch-manipulation"
-                                    onClick={() => setMenuOpenId(null)}
-                                  >
-                                    Edit
-                                  </Link>
-                                  <button
-                                    type="button"
-                                    className="block w-full text-left px-3 py-2.5 sm:py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 touch-manipulation"
-                                    onClick={() => openDeleteModal(blog._id)}
-                                  >
-                                    Delete
-                                  </button>
-                                </div>
-                              )}
-                            </>
-                          )}
+                        {isOwner && (
+                          <>
+                            <button
+                              className="p-1 transition-colors hover:text-gray-600"
+                              aria-label="More options"
+                              onClick={() => toggleMenu(blog._id)}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </button>
+                            {menuOpenId === blog._id && (
+                              <div className="absolute right-0 top-7 z-20 w-40 rounded-md border border-gray-200 bg-white py-2 text-left text-sm shadow-lg">
+                                <Link
+                                  href={`/blogs/update/${blog._id}`}
+                                  className="block px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
+                                  onClick={() => setMenuOpenId(null)}
+                                >
+                                  Edit
+                                </Link>
+                                <button
+                                  type="button"
+                                  className="block w-full px-4 py-2 text-left text-red-600 transition-colors hover:bg-red-50"
+                                  onClick={() => openDeleteModal(blog._id)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
-
-                  {/* Removed thumbnail column */}
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
       </main>

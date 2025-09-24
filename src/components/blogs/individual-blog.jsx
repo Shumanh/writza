@@ -1,19 +1,30 @@
 
-"use client"
-import {useState , useEffect, useRef} from "react"
+"use client";
+import {useState , useEffect, useRef, useContext} from "react";
 import { createRoot } from "react-dom/client";
 import { Tweet } from "react-tweet";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Eye, MessageSquare, Clock, Heart } from "lucide-react";
+import { Calendar, Eye, MessageSquare, Clock, Heart, Bookmark, MoreHorizontal, Search, Bell } from "lucide-react";
+import { AppContext } from "@/app/providers";
 
- export function IndividualBlog({id})
- {
-  const[blog , setBlog] = useState(null)
-  const [error , setError] = useState('')
-  const [loading ,setLoading ] = useState(true)
-  const [likesCount, setLikesCount] = useState(0)
-  const [liked, setLiked] = useState(false)
+const NAV_LINKS = [
+  { href: "/", label: "home" },
+  { href: "/blogs/view", label: "blog" },
+  { href: "https://x.com/shumanh_", label: "twitter", external: true },
+  { href: "https://github.com/Shumanh", label: "github", external: true },
+  { href: "mailto:theshumanhere@gmail.com", label: "mail", external: true },
+];
+
+export function IndividualBlog({ id }) {
+  const [blog, setBlog] = useState(null);
+  const [error, setError] = useState("");
+  const { font } = useContext(AppContext);
+  const [loading, setLoading] = useState(true);
+  const [likesCount, setLikesCount] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userInitial, setUserInitial] = useState("D");
 
 async function getBlog(){
 
@@ -26,6 +37,9 @@ async function getBlog(){
       setBlog(data.data)
       // Initialize local like count
       setLikesCount(typeof data.data?.likesCount === 'number' ? data.data.likesCount : 0)
+      const authorSeed = data.data?.author?.username || data.data?.author?.name || data.data?.author || "";
+      const initial = String(authorSeed).trim().charAt(0).toUpperCase();
+      setUserInitial(initial || "D");
     }
     else{
       setError(data.message || "Failed to fetch the blogs")
@@ -269,7 +283,28 @@ useEffect(() => {
   const readMins = words ? Math.max(1, Math.round(words / 200)) : null;
 
   return (
-    <article className="bg-white">
+    <article className={`bg-white font-default ${font}`}>
+      <header className="border-b border-gray-200">
+        <nav className="mx-auto flex max-w-5xl items-center gap-6 px-6 py-8 text-sm lowercase tracking-wide text-gray-700 font-title">
+          {NAV_LINKS.map(({ href, label, external }) =>
+            external ? (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="transition-colors duration-150 hover:text-gray-900"
+              >
+                {label}
+              </a>
+            ) : (
+              <Link key={label} href={href} className="transition-colors duration-150 hover:text-gray-900">
+                {label}
+              </Link>
+            ),
+          )}
+        </nav>
+      </header>
       <header className="max-w-3xl mx-auto px-6 pt-8 md:pt-10 space-y-2">
         {/* Category badge */}
         {categoryName && (
@@ -284,7 +319,7 @@ useEffect(() => {
         )}
 
         {/* Title */}
-        <h1 className="text-4xl font-bold tracking-tight leading-tight text-gray-900 mt-0 font-title">
+        <h1 className="text-4xl font-semibold tracking-tight leading-tight text-gray-900 mt-0 font-title">
           {blog.title}
         </h1>
         {subtitle && (

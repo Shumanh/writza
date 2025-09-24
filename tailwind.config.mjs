@@ -16,6 +16,7 @@ const config = {
       fontFamily: {
         default: ["var(--font-default)"],
         title: ["var(--font-title)"],
+        blog: ["var(--font-blog)"],
       },
       colors: {
         border: "hsl(var(--border))",
