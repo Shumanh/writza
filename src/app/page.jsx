@@ -7,9 +7,7 @@ import { AppContext } from "@/app/providers";
 const NAV_LINKS = [
   { href: "/", label: "home" },
   { href: "/blogs/view", label: "blog" },
-  { href: "https://x.com/shumanh_", label: "twitter", external: true },
-  { href: "https://github.com/Shumanh", label: "github", external: true },
-  { href: "mailto:theshumanhere@gmail.com", label: "mail", external: true },
+  { href: "/chat", label: "chat" },
 ];
 
 const TIMELINE_ITEMS = [
@@ -134,18 +132,6 @@ export default function Home() {
             gh
           </a>
 
-          <div className="rounded-3xl border border-gray-200 p-6 shadow-sm">
-            <p className="text-sm uppercase tracking-[0.25em] text-gray-500">Contact</p>
-            <a
-              href="mailto:theshumanhere@gmail.com"
-              className="mt-3 block text-lg font-semibold text-gray-900 underline-offset-4 hover:underline"
-            >
-              theshumanhere@gmail.com
-            </a>
-            <p className="mt-4 text-sm text-gray-500">
-              Always open to collaborating on resilient infra and developer experience projects.
-            </p>
-          </div>
         </aside>
       </main>
     </div>

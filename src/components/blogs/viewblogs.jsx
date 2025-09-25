@@ -175,23 +175,6 @@ export function View() {
         <header className="space-y-4">
           <p className="text-sm uppercase tracking-[0.25em] text-gray-500">recent writing</p>
           <h1 className="text-2xl sm:text-[1.65rem] font-semibold tracking-tight text-gray-900 font-blog uppercase">Thoughts on engineering, systems, and product</h1>
-          {loggedIn && (
-            <div className="flex items-center gap-3 text-sm">
-              <Link
-                href="/blogs/create"
-                className="rounded-full border border-gray-900 px-4 py-1.5 text-gray-900 transition-colors hover:bg-gray-50"
-              >
-                Write a post
-              </Link>
-              <button
-                type="button"
-                onClick={() => router.push("/auth/login")}
-                className="text-gray-500 underline-offset-4 transition-colors hover:text-gray-700 hover:underline"
-              >
-                Switch account
-              </button>
-            </div>
-          )}
         </header>
 
         {blogs.length === 0 ? (
