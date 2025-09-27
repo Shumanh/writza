@@ -319,7 +319,7 @@ useEffect(() => {
         )}
 
         {/* Title */}
-        <h1 className="text-4xl font-semibold tracking-tight leading-tight text-gray-900 mt-0 font-title">
+        <h1 className="text-2xl font-semibold tracking-tight leading-tight text-gray-900 mt-0 font-blog">
           {blog.title}
         </h1>
         {subtitle && (
